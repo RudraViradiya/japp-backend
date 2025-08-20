@@ -1,0 +1,16 @@
+import joi from "joi";
+
+/** validation keys and properties of user */
+const creationModel = joi
+  .object({
+    name: joi.string().required(),
+    type: joi.string().required(),
+    note: joi.string(),
+    modelUrl: joi.string(),
+    thumbnail: joi.string(),
+    modelConfig: joi.string().required(),
+    sceneConfig: joi.string().required(),
+  })
+  .unknown(true);
+
+export default { creationModel };
