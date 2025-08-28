@@ -1,9 +1,9 @@
+import mongoose from "mongoose";
+import { fetchDecodedToken } from "../middleware/tokenValidator.js";
 import ModelModel from "../model/model.model.js";
+import { uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
-import { fetchDecodedToken } from "../middleware/tokenValidator.js";
-import mongoose from "mongoose";
-import { uploadToR2 } from "../storage/cloudflare.js";
 
 const create = async (req, res) => {
   const data = req.body;
@@ -37,11 +37,11 @@ const create = async (req, res) => {
     const modelId = new mongoose.Types.ObjectId();
 
     const mainSplit = mainFile.originalname.split(".");
-    const mainPath = `${userId}/${modelId}/main/${Date.now()}-${
+    const mainPath = `${userId}/${modelId}/main.${
       mainSplit[mainSplit.length - 1]
     }`;
     const thumbnailSplit = thumbnail.originalname.split(".");
-    const thumbPath = `${userId}/${modelId}/thumbnail/${Date.now()}-${
+    const thumbPath = `${userId}/${modelId}/thumbnail.${
       thumbnailSplit[thumbnailSplit.length - 1]
     }`;
 
@@ -60,8 +60,6 @@ const create = async (req, res) => {
     const payload = validateRequest.value;
     payload.modelUrl = fileUrl;
     payload.modelConfig = JSON.parse(payload.modelConfig);
-    payload.materialConfig = JSON.parse(payload.materialConfig);
-    payload.sceneConfig = JSON.parse(payload.sceneConfig);
     payload.userId = userId;
     payload.thumbnail = thumbnailUrl;
     const entry = new ModelModel({ _id: modelId, ...payload });
@@ -81,7 +79,6 @@ const getAllByUser = async (req, res) => {
   try {
     const { userId } = fetchDecodedToken(req);
 
-    console.log("🚀 - getAllByUser - userId:", userId);
     if (!userId) {
       return res.badRequest({
         status: 400,
@@ -146,4 +143,138 @@ const getById = async (req, res) => {
   }
 };
 
-export default { create, getAllByUser, getById };
+const deleteById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.badRequest({
+        status: 400,
+        message: "Model ID is required",
+      });
+    }
+
+    const deletedModel = await ModelModel.findByIdAndDelete(id);
+
+    if (!deletedModel) {
+      return res.notFound({
+        status: 404,
+        message: "Model not found",
+      });
+    }
+
+    return res.ok({
+      status: 200,
+      data: deletedModel,
+      message: "Model deleted successfully",
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.badRequest({
+        status: 400,
+        message: "Invalid model ID format",
+      });
+    }
+
+    return res.status(500).json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
+const updateById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = fetchDecodedToken(req);
+
+    if (!id) {
+      return res.badRequest({
+        status: 400,
+        message: "Model ID is required",
+      });
+    }
+
+    const updateData = { ...req.body };
+    console.log("🚀 - updateById - updateData:", updateData);
+    const thumbnail = req.files?.thumbnail?.[0];
+
+    if (!updateData && !thumbnail) {
+      return res.badRequest({
+        status: 400,
+        message:
+          "At least one field (thumbnail, modelConfig, name, type, note) is required",
+      });
+    }
+
+    // Ensure model exists
+    const model = await ModelModel.findById(id);
+    if (!model) {
+      return res.notFound({
+        status: 404,
+        message: "Model not found",
+      });
+    }
+
+    if (thumbnail) {
+      const thumbnailSplit = thumbnail.originalname.split(".");
+      const thumbPath = `${userId}/${id}/thumbnail.${
+        thumbnailSplit[thumbnailSplit.length - 1]
+      }`;
+      const thumbnailUrl = await uploadToR2(
+        thumbnail.buffer,
+        thumbPath,
+        thumbnail.mimetype
+      );
+      updateData.thumbnail = thumbnailUrl;
+    }
+
+    if (updateData.modelConfig) {
+      updateData.modelConfig = JSON.parse(updateData.modelConfig);
+    }
+    if (updateData.materialConfig) {
+      updateData.materialConfig = JSON.parse(updateData.materialConfig);
+    }
+    if (updateData.sceneConfig) {
+      updateData.sceneConfig = JSON.parse(updateData.sceneConfig);
+    }
+
+    // Only allow specific fields to be updated
+    const allowedFields = [
+      "thumbnail",
+      "modelConfig",
+      "materialConfig",
+      "sceneConfig",
+      "name",
+      "type",
+      "note",
+    ];
+    Object.keys(updateData).forEach((key) => {
+      if (!allowedFields.includes(key)) {
+        delete updateData[key];
+      }
+    });
+
+    const updatedModel = await ModelModel.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    return res.ok({
+      status: 200,
+      data: updatedModel,
+      message: "Model updated successfully",
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.badRequest({
+        status: 400,
+        message: "Invalid model ID format",
+      });
+    }
+    return res.status(500).json({ status: 500, message: error.message });
+  }
+};
+
+export default { create, getAllByUser, getById, deleteById, updateById };

@@ -9,6 +9,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.post(
   "/create",
+  tokenValidator,
   upload.fields([
     { name: "mainFile", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
@@ -19,5 +20,14 @@ router.post(
 router.get("/getAll", tokenValidator, model.getAllByUser);
 
 router.get("/:id", tokenValidator, model.getById);
+
+router.put(
+  "/:id",
+  tokenValidator,
+  upload.fields([{ name: "thumbnail", maxCount: 1 }]),
+  model.updateById
+);
+
+router.delete("/:id", tokenValidator, model.deleteById);
 
 export default router;

@@ -22,10 +22,6 @@ const schema = new Schema(
 
     modelConfig: { type: Object },
 
-    materialConfig: { type: Object },
-
-    sceneConfig: { type: Object },
-
     createdAt: { type: Date },
 
     updatedAt: { type: Date },

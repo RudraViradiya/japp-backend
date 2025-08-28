@@ -12,7 +12,6 @@ export const fetchDecodedToken = (req) => {
     }
 
     const decoded = jwt.verify(token.replace("Bearer ", ""), secretKey);
-    console.log("🚀 - fetchDecodedToken - decoded:", decoded);
     return decoded; // Handle different token structures
   } catch (error) {
     throw new Error("Invalid or expired token");
@@ -23,7 +22,6 @@ const checkTokenValidity = async (token) =>
   new Promise((res, rej) => {
     (async () => {
       try {
-        console.log("🚀 - decoded:", token, secretKey);
         const decoded = jwt.verify(token, secretKey);
 
         if (decoded) {

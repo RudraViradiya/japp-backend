@@ -9,7 +9,6 @@ const creationModel = joi
     modelUrl: joi.string(),
     thumbnail: joi.string(),
     modelConfig: joi.string().required(),
-    sceneConfig: joi.string().required(),
   })
   .unknown(true);
 
