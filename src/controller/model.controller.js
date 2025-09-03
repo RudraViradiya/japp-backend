@@ -4,6 +4,7 @@ import ModelModel from "../model/model.model.js";
 import { uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
+import { flattenObject } from "../utils/index.js";
 
 const create = async (req, res) => {
   const data = req.body;
@@ -196,7 +197,7 @@ const updateById = async (req, res) => {
     }
 
     const updateData = { ...req.body };
-    console.log("🚀 - updateById - updateData:", updateData);
+
     const thumbnail = req.files?.thumbnail?.[0];
 
     if (!updateData && !thumbnail) {
@@ -277,4 +278,57 @@ const updateById = async (req, res) => {
   }
 };
 
-export default { create, getAllByUser, getById, deleteById, updateById };
+const updateConfigById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = fetchDecodedToken(req);
+
+    if (!id) {
+      return res.badRequest({
+        status: 400,
+        message: "Model ID is required",
+      });
+    }
+
+    const modelConfig = req.body;
+
+    // Ensure model exists
+    const model = await ModelModel.findById(id);
+
+    if (!model) {
+      return res.notFound({
+        status: 404,
+        message: "Model not found",
+      });
+    }
+
+    const updatedModel = await ModelModel.findByIdAndUpdate(
+      id,
+      { $set: { modelConfig } },
+      { new: true, runValidators: true }
+    );
+
+    return res.ok({
+      status: 200,
+      data: updatedModel,
+      message: "Model updated successfully",
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.badRequest({
+        status: 400,
+        message: "Invalid model ID format",
+      });
+    }
+    return res.status(500).json({ status: 500, message: error.message });
+  }
+};
+
+export default {
+  create,
+  getAllByUser,
+  getById,
+  deleteById,
+  updateById,
+  updateConfigById,
+};

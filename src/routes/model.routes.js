@@ -28,6 +28,8 @@ router.put(
   model.updateById
 );
 
+router.put("/updateConfig/:id", tokenValidator, model.updateConfigById);
+
 router.delete("/:id", tokenValidator, model.deleteById);
 
 export default router;
