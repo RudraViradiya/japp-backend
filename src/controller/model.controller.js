@@ -233,8 +233,12 @@ const updateById = async (req, res) => {
     if (updateData.modelConfig) {
       updateData.modelConfig = JSON.parse(updateData.modelConfig);
     }
+
     if (updateData.materialConfig) {
       updateData.materialConfig = JSON.parse(updateData.materialConfig);
+    }
+    if (updateData.camera) {
+      updateData["modelConfig.camera"] = JSON.parse(updateData.camera);
     }
     if (updateData.sceneConfig) {
       updateData.sceneConfig = JSON.parse(updateData.sceneConfig);
@@ -245,6 +249,7 @@ const updateById = async (req, res) => {
       "thumbnail",
       "modelConfig",
       "materialConfig",
+      "modelConfig.camera",
       "sceneConfig",
       "name",
       "type",
@@ -255,7 +260,7 @@ const updateById = async (req, res) => {
         delete updateData[key];
       }
     });
-
+    ``;
     const updatedModel = await ModelModel.findByIdAndUpdate(
       id,
       { $set: updateData },
