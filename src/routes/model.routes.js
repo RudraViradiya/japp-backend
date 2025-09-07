@@ -21,6 +21,8 @@ router.get("/getAll", tokenValidator, model.getAllByUser);
 
 router.get("/:id", tokenValidator, model.getById);
 
+router.get("/embed/:id", model.getById);
+
 router.put(
   "/:id",
   tokenValidator,

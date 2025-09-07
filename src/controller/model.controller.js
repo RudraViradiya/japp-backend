@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { get } from "mongoose";
 import { fetchDecodedToken } from "../middleware/tokenValidator.js";
 import ModelModel from "../model/model.model.js";
 import { uploadToR2 } from "../storage/cloudflare.js";
@@ -104,6 +104,47 @@ const getAllByUser = async (req, res) => {
 };
 
 const getById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.badRequest({
+        status: 400,
+        message: "Model ID is required",
+      });
+    }
+
+    const model = await ModelModel.findById(id);
+
+    if (!model) {
+      return res.notFound({
+        status: 404,
+        message: "Model not found",
+      });
+    }
+
+    return res.ok({
+      status: 200,
+      data: model,
+      message: "Model fetched successfully",
+    });
+  } catch (error) {
+    // Handle invalid ObjectId format
+    if (error.name === "CastError") {
+      return res.badRequest({
+        status: 400,
+        message: "Invalid model ID format",
+      });
+    }
+
+    return res.status(500).json({
+      status: 500,
+      message: error.message,
+    });
+  }
+};
+
+const getByIdEmbed = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -333,6 +374,7 @@ export default {
   create,
   getAllByUser,
   getById,
+  getByIdEmbed,
   deleteById,
   updateById,
   updateConfigById,
