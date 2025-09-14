@@ -34,6 +34,14 @@ const schema = new Schema(
 
     modelCredit: { type: Number },
 
+    isVerified: { type: Boolean },
+
+    isBlocked: { type: Boolean },
+
+    otp: { type: Number },
+
+    otpExpires: { type: Number },
+
     createdAt: { type: Date },
 
     updatedAt: { type: Date },
@@ -52,10 +60,8 @@ schema.methods.isPasswordMatch = async function (password) {
 };
 
 schema.pre("save", async function (next) {
-  if (this.password) {
-    this.password = await bcrypt.hash(this.password, 8);
-  }
   this.modelCredit = 5;
+  this.isBlocked = true;
   this.email = this.email.toString().trim().toLowerCase();
   next();
 });

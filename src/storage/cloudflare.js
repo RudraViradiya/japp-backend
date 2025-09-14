@@ -5,6 +5,7 @@ import {
   DeleteObjectsCommand,
   CopyObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import path from "path";
@@ -23,24 +24,6 @@ const s3 = new S3Client({
   },
 });
 
-// export async function uploadToR2(filePath, fileKey) {
-//   const fileContent = fs.readFileSync(filePath);
-
-//   const command = new PutObjectCommand({
-//     Bucket: R2_BUCKET,
-//     Key: fileKey,
-//     Body: fileContent,
-//     ContentType: "application/octet-stream", // Or set based on the file type
-//   });
-
-//   try {
-//     await s3.send(command);
-//     console.log(`✅ File uploaded as '${fileKey}'`);
-//   } catch (err) {
-//     console.error("❌ Upload failed:", err);
-//   }
-// }
-
 export async function uploadToR2(fileBuffer, key, contentType) {
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET,
@@ -51,4 +34,13 @@ export async function uploadToR2(fileBuffer, key, contentType) {
 
   await s3.send(command);
   return key;
+}
+
+export async function fetchFromR2(key) {
+  const command = new GetObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+  });
+
+  return await s3.send(command);
 }

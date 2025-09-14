@@ -25,7 +25,7 @@ const checkTokenValidity = async (token) =>
         const decoded = jwt.verify(token, secretKey);
 
         if (decoded) {
-          res(true);
+          res(decoded.userId);
         } else {
           rej("Your token is expired");
         }
@@ -45,6 +45,7 @@ const tokenValidator = async (req, res, next) => {
 
   checkTokenValidity(token.replace("Bearer ", ""))
     .then(async (result) => {
+      req.userId = result;
       next();
     })
     .catch((err) => res.unAuthorizedRequest({ message: err }));

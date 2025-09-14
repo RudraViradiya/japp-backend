@@ -1,10 +1,10 @@
-import mongoose, { get } from "mongoose";
+import mongoose from "mongoose";
 import { fetchDecodedToken } from "../middleware/tokenValidator.js";
 import ModelModel from "../model/model.model.js";
 import { uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
-import { flattenObject } from "../utils/index.js";
+import UserModel from "../model/use.model.js";
 
 const create = async (req, res) => {
   const data = req.body;
@@ -16,10 +16,22 @@ const create = async (req, res) => {
   delete data.thumbnail;
   delete data.mainFile;
   try {
+    const user = await UserModel.findOne({ _id: req.userId });
+
+    if (user.modelCredit <= 0) {
+      return res.badRequest({
+        status: 400,
+        message: "You do not have enough model credits to upload a model",
+      });
+    }
+
     const validateRequest = validation.validateParamsWithJoi(
       data,
       modelValidator.creationModel
     );
+
+    user.modelCredit -= 1;
+    await user.save();
 
     if (!validateRequest.isValid) {
       return res.badRequest({
@@ -72,22 +84,21 @@ const create = async (req, res) => {
       message: "User created Successfully",
     });
   } catch (error) {
-    return res.status(500).json({ status: 500, message: error });
+    console.log("🚀 - create - error:", error);
+    return res.failureResponse();
   }
 };
 
 const getAllByUser = async (req, res) => {
   try {
-    const { userId } = fetchDecodedToken(req);
-
-    if (!userId) {
+    if (!req.userId) {
       return res.badRequest({
         status: 400,
         message: "UserId is required",
       });
     }
 
-    const models = await ModelModel.find({ userId: userId });
+    const models = await ModelModel.find({ userId: req.userId });
 
     return res.ok({
       status: 200,
@@ -96,10 +107,7 @@ const getAllByUser = async (req, res) => {
       count: models.length,
     });
   } catch (error) {
-    return res.status(500).json({
-      status: 500,
-      message: error.message,
-    });
+    return res.failureResponse();
   }
 };
 
@@ -117,8 +125,8 @@ const getById = async (req, res) => {
     const model = await ModelModel.findById(id);
 
     if (!model) {
-      return res.notFound({
-        status: 404,
+      return res.badRequest({
+        status: 400,
         message: "Model not found",
       });
     }
@@ -137,10 +145,7 @@ const getById = async (req, res) => {
       });
     }
 
-    return res.status(500).json({
-      status: 500,
-      message: error.message,
-    });
+    return res.failureResponse();
   }
 };
 
@@ -178,10 +183,7 @@ const getByIdEmbed = async (req, res) => {
       });
     }
 
-    return res.status(500).json({
-      status: 500,
-      message: error.message,
-    });
+    return res.failureResponse();
   }
 };
 
@@ -199,8 +201,8 @@ const deleteById = async (req, res) => {
     const deletedModel = await ModelModel.findByIdAndDelete(id);
 
     if (!deletedModel) {
-      return res.notFound({
-        status: 404,
+      return res.badRequest({
+        status: 400,
         message: "Model not found",
       });
     }
@@ -218,10 +220,7 @@ const deleteById = async (req, res) => {
       });
     }
 
-    return res.status(500).json({
-      status: 500,
-      message: error.message,
-    });
+    return res.failureResponse();
   }
 };
 
@@ -252,8 +251,8 @@ const updateById = async (req, res) => {
     // Ensure model exists
     const model = await ModelModel.findById(id);
     if (!model) {
-      return res.notFound({
-        status: 404,
+      return res.badRequest({
+        status: 400,
         message: "Model not found",
       });
     }
@@ -320,14 +319,13 @@ const updateById = async (req, res) => {
         message: "Invalid model ID format",
       });
     }
-    return res.status(500).json({ status: 500, message: error.message });
+    return res.failureResponse();
   }
 };
 
 const updateConfigById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = fetchDecodedToken(req);
 
     if (!id) {
       return res.badRequest({
@@ -342,8 +340,8 @@ const updateConfigById = async (req, res) => {
     const model = await ModelModel.findById(id);
 
     if (!model) {
-      return res.notFound({
-        status: 404,
+      return res.badRequest({
+        status: 400,
         message: "Model not found",
       });
     }
@@ -366,7 +364,7 @@ const updateConfigById = async (req, res) => {
         message: "Invalid model ID format",
       });
     }
-    return res.status(500).json({ status: 500, message: error.message });
+    return res.failureResponse();
   }
 };
 
