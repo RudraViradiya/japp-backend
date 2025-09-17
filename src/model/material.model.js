@@ -7,19 +7,19 @@ mongoosePaginate.paginate.options = { customLabels: paginatorCustomLabels };
 const { Schema } = mongoose;
 const schema = new Schema(
   {
-    name: { type: String },
-
-    userId: { type: mongoose.Types.ObjectId },
-
     type: { type: String },
 
-    note: { type: String },
+    category: { type: String },
 
-    modelUrl: { type: String },
+    name: { type: String },
 
     thumbnail: { type: String },
 
-    modelConfig: { type: Object },
+    value: { type: String },
+
+    userId: { type: mongoose.Types.ObjectId },
+
+    weight: { type: Number },
 
     createdAt: { type: Date },
 
@@ -35,6 +35,6 @@ const schema = new Schema(
 
 schema.plugin(mongoosePaginate);
 
-const ModelModel = mongoose.model("model", schema);
+const MaterialModel = mongoose.model("material", schema);
 
-export default ModelModel;
+export default MaterialModel;

@@ -1,6 +1,6 @@
 import express from "express";
 import authRouter from "./auth.routes.js";
-import fileRouter from "./files.router.js";
+import fileRouter from "./files.routes.js";
 import modelRouter from "./model.routes.js";
 
 const router = express.Router();

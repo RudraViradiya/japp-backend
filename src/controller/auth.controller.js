@@ -1,4 +1,4 @@
-import UserModel from "../model/use.model.js";
+import UserModel from "../model/user.model.js";
 import validation from "../utils/validateRequest.js";
 import authValidator from "../utils/validation/authValidator.js";
 import { generateToken } from "../utils/common.js";

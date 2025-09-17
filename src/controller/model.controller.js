@@ -4,7 +4,7 @@ import ModelModel from "../model/model.model.js";
 import { uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
-import UserModel from "../model/use.model.js";
+import UserModel from "../model/user.model.js";
 
 const create = async (req, res) => {
   const data = req.body;
