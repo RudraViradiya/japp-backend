@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node -r dotenv/config index.js dotenv_config_path=.env.development.local dotenv_config_debug=true",
     "dev": "nodemon -r dotenv/config index.js dotenv_config_path=.env.development.local dotenv_config_debug=true",
-    "seed:sequelize": "node src/seeders",
+    "seed": "node -r dotenv/config src/seeders/index.js dotenv_config_path=.env.development.local",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

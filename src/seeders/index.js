@@ -7,6 +7,7 @@ import gemEnv from "./scenes/gem_env.js";
 import metalEnv from "./scenes/metal_env.js";
 import scene from "./scenes/scene.js";
 import MaterialModel from "../model/material.model.js";
+import "../db/conn.js"; // Import database connection
 
 const allMaterials = [
   ...gemMaterials,
@@ -19,15 +20,26 @@ const allMaterials = [
 ];
 
 async function run() {
-  // Option 1: Clear collections (destructive)
-  await MaterialModel.deleteMany({});
+  try {
+    // Wait a moment for database connection to establish
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  console.log("🚀 - Seeding Materials");
-  await User.insertMany(allMaterials);
-  console.log("🚀 - Seeding Materials Completed");
+    // Option 1: Clear collections (destructive)
+    // await MaterialModel.deleteMany({});
+
+    console.log("🚀 - Seeding Materials");
+    console.log(`📊 - Total materials to insert: ${allMaterials.length}`);
+
+    const result = await MaterialModel.insertMany(allMaterials);
+    console.log(`✅ - Successfully inserted ${result.length} materials`);
+    console.log("🚀 - Seeding Materials Completed");
+
+    // Close database connection
+    process.exit(0);
+  } catch (error) {
+    console.error("❌ - Error during seeding:", error);
+    process.exit(1);
+  }
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+run();
