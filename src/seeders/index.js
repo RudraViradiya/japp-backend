@@ -8,6 +8,8 @@ import gemEnv from "./scenes/gem_env.js";
 import ground from "./scenes/ground.js";
 import metalEnv from "./scenes/metal_env.js";
 import scene from "./scenes/scene.js";
+import MaterialModel from "../model/material.model.js";
+import "../db/conn.js"; // Import database connection
 
 const allMaterials = [
   ...gemMaterials,
@@ -33,15 +35,15 @@ async function run() {
     // const result = await MaterialModel.insertMany(allMaterials);
     // console.log(`✅ - Successfully inserted ${result.length} materials`);
 
-    console.log("🚀 - Seeding Plans");
-    console.log(`📊 - Total subscription to insert: ${subscription.length}`);
+    // console.log("🚀 - Seeding Plans");
+    // console.log(`📊 - Total subscription to insert: ${subscription.length}`);
 
-    await PlanModel.insertMany(subscription);
-    console.log(
-      `✅ - Successfully inserted ${subscription.length} subscriptions`
-    );
+    // await PlanModel.insertMany(subscription);
+    // console.log(
+    //   `✅ - Successfully inserted ${subscription.length} subscriptions`
+    // );
 
-    console.log("🚀 - Seeding Completed");
+    // console.log("🚀 - Seeding Completed");
 
     // Close database connection
     process.exit(0);
