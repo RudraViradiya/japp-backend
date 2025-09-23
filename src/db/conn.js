@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const dbUri = process.env.DB_URI;
-console.log("🚀 - dbUri:", dbUri);
 
 mongoose
   .connect(dbUri)

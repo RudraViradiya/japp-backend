@@ -1,24 +1,23 @@
 import mongoose from "mongoose";
-import { fetchDecodedToken } from "../middleware/tokenValidator.js";
 import ModelModel from "../model/model.model.js";
+import UserModel from "../model/user.model.js";
 import { uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
-import UserModel from "../model/user.model.js";
 
-const create = async (req, res) => {
+export const create = async (req, res) => {
   const data = req.body;
-  const { userId } = fetchDecodedToken(req);
 
   const mainFile = req.files.mainFile?.[0];
   const thumbnail = req.files.thumbnail?.[0];
 
   delete data.thumbnail;
   delete data.mainFile;
+
   try {
     const user = await UserModel.findOne({ _id: req.userId });
 
-    if (user.modelCredit <= 0) {
+    if (user.config.modelCredit <= 0) {
       return res.badRequest({
         status: 400,
         message: "You do not have enough model credits to upload a model",
@@ -30,13 +29,18 @@ const create = async (req, res) => {
       modelValidator.creationModel
     );
 
-    user.modelCredit -= 1;
-    await user.save();
-
     if (!validateRequest.isValid) {
       return res.badRequest({
         status: 400,
         message: `Invalid Params : ${validateRequest.message}`,
+      });
+    }
+
+    const model = await ModelModel.findOne({ sku: data.sku });
+    if (model) {
+      return res.badRequest({
+        status: 404,
+        message: "Model with same sku already exists",
       });
     }
 
@@ -50,11 +54,11 @@ const create = async (req, res) => {
     const modelId = new mongoose.Types.ObjectId();
 
     const mainSplit = mainFile.originalname.split(".");
-    const mainPath = `${userId}/${modelId}/main.${
+    const mainPath = `${req.userId}/${modelId}/main.${
       mainSplit[mainSplit.length - 1]
     }`;
     const thumbnailSplit = thumbnail.originalname.split(".");
-    const thumbPath = `${userId}/${modelId}/thumbnail.${
+    const thumbPath = `${req.userId}/${modelId}/thumbnail.${
       thumbnailSplit[thumbnailSplit.length - 1]
     }`;
 
@@ -73,10 +77,14 @@ const create = async (req, res) => {
     const payload = validateRequest.value;
     payload.modelUrl = fileUrl;
     payload.modelConfig = JSON.parse(payload.modelConfig);
-    payload.userId = userId;
+    payload.userId = req.userId;
     payload.thumbnail = thumbnailUrl;
     const entry = new ModelModel({ _id: modelId, ...payload });
     await entry.save();
+    await UserModel.updateOne(
+      { _id: req.userId },
+      { $inc: { "config.modelCredit": -1 } }
+    );
 
     return res.ok({
       status: 200,
@@ -89,7 +97,7 @@ const create = async (req, res) => {
   }
 };
 
-const getAllByUser = async (req, res) => {
+export const getAllByUser = async (req, res) => {
   try {
     if (!req.userId) {
       return res.badRequest({
@@ -111,7 +119,7 @@ const getAllByUser = async (req, res) => {
   }
 };
 
-const getById = async (req, res) => {
+export const getById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -149,7 +157,7 @@ const getById = async (req, res) => {
   }
 };
 
-const getByIdEmbed = async (req, res) => {
+export const getByIdEmbed = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -169,6 +177,16 @@ const getByIdEmbed = async (req, res) => {
       });
     }
 
+    const user = await UserModel.findOne(model.userId);
+    console.log("🚀 - getByIdEmbed - user:", user);
+
+    if (!user?.config?.embed) {
+      return res.badRequest({
+        status: 400,
+        message: "Embed is disabled for this user",
+      });
+    }
+
     return res.ok({
       status: 200,
       data: model,
@@ -187,7 +205,7 @@ const getByIdEmbed = async (req, res) => {
   }
 };
 
-const deleteById = async (req, res) => {
+export const deleteById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -224,10 +242,9 @@ const deleteById = async (req, res) => {
   }
 };
 
-const updateById = async (req, res) => {
+export const updateById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = fetchDecodedToken(req);
 
     if (!id) {
       return res.badRequest({
@@ -259,7 +276,7 @@ const updateById = async (req, res) => {
 
     if (thumbnail) {
       const thumbnailSplit = thumbnail.originalname.split(".");
-      const thumbPath = `${userId}/${id}/thumbnail.${
+      const thumbPath = `${req.userId}/${id}/thumbnail.${
         thumbnailSplit[thumbnailSplit.length - 1]
       }`;
       const thumbnailUrl = await uploadToR2(
@@ -323,7 +340,7 @@ const updateById = async (req, res) => {
   }
 };
 
-const updateConfigById = async (req, res) => {
+export const updateConfigById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -366,14 +383,4 @@ const updateConfigById = async (req, res) => {
     }
     return res.failureResponse();
   }
-};
-
-export default {
-  create,
-  getAllByUser,
-  getById,
-  getByIdEmbed,
-  deleteById,
-  updateById,
-  updateConfigById,
 };

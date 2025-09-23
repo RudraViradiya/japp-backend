@@ -1,6 +1,14 @@
 import express from "express";
 import multer from "multer";
-import model from "../controller/model.controller.js";
+import {
+  create,
+  deleteById,
+  getAllByUser,
+  getById,
+  getByIdEmbed,
+  updateById,
+  updateConfigById,
+} from "../controller/model.controller.js";
 import tokenValidator from "../middleware/tokenValidator.js";
 
 const router = express.Router();
@@ -8,30 +16,30 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post(
-  "/create",
+  "/",
   tokenValidator,
   upload.fields([
     { name: "mainFile", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
   ]),
-  model.create
+  create
 );
 
-router.get("/getAll", tokenValidator, model.getAllByUser);
+router.get("/", tokenValidator, getAllByUser);
 
-router.get("/:id", tokenValidator, model.getById);
+router.get("/:id", tokenValidator, getById);
 
-router.get("/embed/:id", model.getById);
+router.get("/embed/:id", getByIdEmbed);
 
 router.put(
   "/:id",
   tokenValidator,
   upload.fields([{ name: "thumbnail", maxCount: 1 }]),
-  model.updateById
+  updateById
 );
 
-router.put("/updateConfig/:id", tokenValidator, model.updateConfigById);
+router.put("/updateConfig/:id", tokenValidator, updateConfigById);
 
-router.delete("/:id", tokenValidator, model.deleteById);
+router.delete("/:id", tokenValidator, deleteById);
 
 export default router;

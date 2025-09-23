@@ -9,7 +9,9 @@ const schema = new Schema(
   {
     name: { type: String },
 
-    userId: { type: mongoose.Types.ObjectId },
+    sku: { type: String },
+
+    userId: { ref: "user", required: true, type: mongoose.Types.ObjectId },
 
     type: { type: String },
 

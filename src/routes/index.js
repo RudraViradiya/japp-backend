@@ -2,6 +2,9 @@ import express from "express";
 import authRouter from "./auth.routes.js";
 import fileRouter from "./files.routes.js";
 import modelRouter from "./model.routes.js";
+import materialRouter from "./material.routes.js";
+import mediaRouter from "./media.routes.js";
+import paymentRouter from "./payment.routes.js";
 
 const router = express.Router();
 
@@ -9,6 +12,12 @@ router.use("/auth", authRouter);
 
 router.use("/model", modelRouter);
 
+router.use("/material", materialRouter);
+
 router.use("/file", fileRouter);
+
+router.use("/media", mediaRouter);
+
+router.use("/payment", paymentRouter);
 
 export default router;

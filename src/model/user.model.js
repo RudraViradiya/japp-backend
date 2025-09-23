@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import bcrypt from "bcrypt";
 import { paginatorCustomLabels } from "../db/config.js";
+import { config } from "dotenv";
 
 mongoosePaginate.paginate.options = { customLabels: paginatorCustomLabels };
 const { Schema } = mongoose;
@@ -32,6 +33,10 @@ const schema = new Schema(
 
     city: { type: String },
 
+    activePlans: [{ type: Object }],
+
+    config: { type: Object },
+
     modelCredit: { type: Number },
 
     isVerified: { type: Boolean },
@@ -60,7 +65,6 @@ schema.methods.isPasswordMatch = async function (password) {
 };
 
 schema.pre("save", async function (next) {
-  this.modelCredit = 5;
   this.isBlocked = true;
   this.email = this.email.toString().trim().toLowerCase();
   next();

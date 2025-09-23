@@ -1,6 +1,6 @@
 import { fetchFromR2 } from "../storage/cloudflare.js";
 
-const getFiles = async (req, res) => {
+export const getFiles = async (req, res) => {
   try {
     const { key } = req.query;
 
@@ -27,5 +27,3 @@ const getFiles = async (req, res) => {
     res.failureResponse();
   }
 };
-
-export default { getFiles };

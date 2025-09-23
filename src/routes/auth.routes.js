@@ -1,17 +1,23 @@
 import express from "express";
-import user from "../controller/auth.controller.js";
+import {
+  login,
+  verifyOtp,
+  resendOtp,
+  signUp,
+  getUserDetails,
+} from "../controller/auth.controller.js";
 import tokenValidator from "../middleware/tokenValidator.js";
 
 const router = express.Router();
 
-router.post("/login", user.login);
+router.post("/login", login);
 
-router.post("/verifyOtp", user.verifyOtp);
+router.post("/verifyOtp", verifyOtp);
 
-router.post("/resendOtp", user.resendOtp);
+router.post("/resendOtp", resendOtp);
 
-router.post("/signUp", user.signUp);
+router.post("/signUp", signUp);
 
-router.get("/me", tokenValidator, user.getUserDetails);
+router.get("/", tokenValidator, getUserDetails);
 
 export default router;

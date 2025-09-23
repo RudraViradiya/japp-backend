@@ -4,8 +4,9 @@ import authValidator from "../utils/validation/authValidator.js";
 import { generateToken } from "../utils/common.js";
 import bcrypt from "bcrypt";
 import { sendOtpEmail } from "../utils/emailProvider.js";
+import { DEFAULT_PLAN } from "../seeders/plans/subscription.js";
 
-const signUp = async (req, res) => {
+export const signUp = async (req, res) => {
   const data = req.body;
   try {
     const validateRequest = validation.validateParamsWithJoi(
@@ -23,13 +24,11 @@ const signUp = async (req, res) => {
 
     if (existingUser) {
       if (existingUser.isVerified) {
-        // Already verified → reject
         return res.badRequest({
           status: 409,
           message: "User with this email already exists and is verified.",
         });
       } else {
-        // Not verified → replace (remove old + create new)
         await UserModel.deleteOne({ email: data.email });
       }
     }
@@ -43,6 +42,7 @@ const signUp = async (req, res) => {
       isVerified: false,
       otp,
       otpExpires,
+      activePlans: [],
       password: await bcrypt.hash(validateRequest.value.password, 8),
     });
     await entry.save();
@@ -59,7 +59,7 @@ const signUp = async (req, res) => {
   }
 };
 
-const verifyOtp = async (req, res) => {
+export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
@@ -86,7 +86,8 @@ const verifyOtp = async (req, res) => {
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
-
+    user.activePlans = [DEFAULT_PLAN];
+    user.config = DEFAULT_PLAN.features;
     await user.save();
 
     // Generate tokens only now
@@ -102,7 +103,7 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-const resendOtp = async (req, res) => {
+export const resendOtp = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -141,7 +142,7 @@ const resendOtp = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email });
@@ -173,7 +174,7 @@ const login = async (req, res) => {
   }
 };
 
-const getUserDetails = async (req, res) => {
+export const getUserDetails = async (req, res) => {
   try {
     const user = await UserModel.findById(req.userId).select(
       "-password -otp -otpExpires"
@@ -198,5 +199,3 @@ const getUserDetails = async (req, res) => {
     return res.failureResponse();
   }
 };
-
-export default { signUp, login, verifyOtp, resendOtp, getUserDetails };

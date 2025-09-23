@@ -4,6 +4,7 @@ import joi from "joi";
 const creationModel = joi
   .object({
     name: joi.string().required(),
+    sku: joi.string().required(),
     type: joi.string().required(),
     note: joi.string(),
     modelUrl: joi.string(),
