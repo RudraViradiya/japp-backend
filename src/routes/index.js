@@ -5,6 +5,8 @@ import modelRouter from "./model.routes.js";
 import materialRouter from "./material.routes.js";
 import mediaRouter from "./media.routes.js";
 import paymentRouter from "./payment.routes.js";
+import planRouter from "./plan.routes.js";
+import webHookRouter from "./webhook.routes.js";
 
 const router = express.Router();
 
@@ -19,5 +21,9 @@ router.use("/file", fileRouter);
 router.use("/media", mediaRouter);
 
 router.use("/payment", paymentRouter);
+
+router.use("/subscription", planRouter);
+
+router.use("/webhook", webHookRouter);
 
 export default router;

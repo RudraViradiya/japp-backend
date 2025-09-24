@@ -5,33 +5,33 @@ import { paginatorCustomLabels } from "../db/config.js";
 mongoosePaginate.paginate.options = { customLabels: paginatorCustomLabels };
 
 const { Schema } = mongoose;
-
 const schema = new Schema(
   {
-    name: { type: String, required: true },
-
     userId: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
-      type: mongoose.Schema.Types.ObjectId,
     },
 
     planId: { type: String, required: true },
 
-    razorpaySubscriptionId: { type: String, required: true },
-
-    razorpayPaymentId: { type: String },
-
-    razorpaySignature: { type: String },
-
-    amount: { type: Number, required: true },
-
-    currency: { type: String, required: true },
+    razorpaySubscriptionId: { type: String, required: true, unique: true },
 
     status: {
       type: String,
+      enum: ["created", "active", "pending", "halted", "cancelled", "captured"],
       default: "created",
     },
+
+    startDate: { type: Date, default: Date.now },
+
+    endDate: { type: Date },
+
+    nextBillingDate: { type: Date },
+
+    cycleCount: { type: Number, default: 0 },
+
+    notes: { type: Object, default: {} },
 
     createdAt: { type: Date },
 
@@ -47,6 +47,6 @@ const schema = new Schema(
 
 schema.plugin(mongoosePaginate);
 
-const TransactionModel = mongoose.model("transaction", schema);
+const SubscriptionModel = mongoose.model("subscription", schema);
 
-export default TransactionModel;
+export default SubscriptionModel;

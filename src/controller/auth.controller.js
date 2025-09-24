@@ -82,11 +82,19 @@ export const verifyOtp = async (req, res) => {
       return res.badRequest({ status: 400, message: "OTP Expired" });
     }
 
+    const newPlan = DEFAULT_PLAN;
+    const startDate = new Date();
+
+    // add durationInDays from the plan
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + newPlan.durationInDays);
+
     // Mark verified
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
-    user.activePlans = [DEFAULT_PLAN];
+
+    user.activePlans = [{ ...newPlan, startDate, endDate }];
     user.config = DEFAULT_PLAN.features;
     await user.save();
 

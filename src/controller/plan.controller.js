@@ -1,4 +1,4 @@
-import PlanModel from "../model/plan.model";
+import PlanModel from "../model/plan.model.js";
 
 // Fetch all active plans
 export const getPlans = async (req, res) => {

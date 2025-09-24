@@ -1,9 +1,7 @@
 // controllers/paymentController.js
 import Razorpay from "razorpay";
-import crypto from "crypto";
 import PlanModel from "../model/plan.model.js";
-import TransactionModel from "../model/transaction.model.js";
-import UserModel from "../model/user.model.js";
+import SubscriptionModel from "../model/subscription.model.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -89,19 +87,16 @@ export const createSubscription = async (req, res) => {
       },
     });
 
-    // Save initial transaction in DB
-    const transaction = new TransactionModel({
-      name: "Subscription",
-      userId,
-      planId,
+    const subscriptionItem = new SubscriptionModel({
+      userId: userId.toString(),
+      planId: plan.planId,
       razorpaySubscriptionId: subscription.id,
-      amount: priceObj.amount * 100, // amount in paise
-      currency,
-      status: subscription.status, // should be "created"
+      status: "created",
+      startDate: new Date(),
+      cycleCount: 0,
     });
-    await transaction.save();
+    await subscriptionItem.save();
 
-    // Response to frontend
     return res.ok({
       status: 200,
       data: {
@@ -112,6 +107,8 @@ export const createSubscription = async (req, res) => {
         },
         currency,
         amount: priceObj.amount,
+        name: "Gemora Studio",
+        theme: { color: "#c4a484" },
       },
       message: "Subscription created successfully",
     });
