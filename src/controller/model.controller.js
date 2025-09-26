@@ -106,7 +106,10 @@ export const getAllByUser = async (req, res) => {
       });
     }
 
-    const models = await ModelModel.find({ userId: req.userId });
+    const models = await ModelModel.find(
+      { userId: req.userId },
+      { _id: 1, name: 1, thumbnail: 1, sku: 1, type: 1, note: 1, createdAt: 1 }
+    );
 
     return res.ok({
       status: 200,

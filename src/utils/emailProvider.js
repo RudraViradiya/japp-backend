@@ -43,23 +43,6 @@ const htmlTemplate = (name, otp) => `
         <p style="font-size: 14px; margin-bottom: 20px; color: #777; text-align: center;">
           ⏳ This OTP is valid for <b>5 minutes</b>. Please do not share it with anyone for your security.
         </p>
-
-        <!-- CTA Button -->
-        <div style="text-align: center; margin-top: 30px;">
-          <a href="https://gemorastudios.com/verify" 
-             style="
-               background: #c4a484;
-               color: #ffffff;
-               padding: 14px 28px;
-               border-radius: 8px;
-               text-decoration: none;
-               font-size: 16px;
-               font-weight: bold;
-               box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-             ">
-            Verify Account
-          </a>
-        </div>
       </div>
 
       <!-- Footer -->

@@ -4,6 +4,7 @@ import SubscriptionModel from "../model/subscription.model.js";
 import PlanModel from "../model/plan.model.js";
 import UserModel from "../model/user.model.js";
 import axios from "axios";
+import { EMPTY_PLAN } from "../seeders/plans/subscription.js";
 
 export const razorpayWebhook = async (req, res) => {
   try {
@@ -73,6 +74,7 @@ export const razorpayWebhook = async (req, res) => {
         }
 
         const plan = await PlanModel.findOne({ planId: sub.plan_id });
+        console.log("🚀 - razorpayWebhook - plan:", plan);
 
         // 2️⃣ Add to user's active plans
         await UserModel.findByIdAndUpdate(
@@ -80,9 +82,10 @@ export const razorpayWebhook = async (req, res) => {
           {
             $push: {
               activePlans: {
-                planId: plan._id,
+                planId: plan.planId,
                 name: plan.name,
                 description: plan.description,
+                weight: plan.weight,
                 type: plan.type,
                 features: plan.features,
                 prices: plan.prices,
@@ -149,17 +152,19 @@ export const razorpayWebhook = async (req, res) => {
         const sub = payload.subscription.entity;
 
         // 1️⃣ Update subscription status
-        const newStatus =
-          event === "subscription.cancelled" ? "cancelled" : "halted";
+
         await SubscriptionModel.findOneAndUpdate(
           { razorpaySubscriptionId: sub.id },
-          { status: newStatus }
+          { status: "cancelled" }
         );
 
         // 2️⃣ Remove plan from user's activePlans
         await UserModel.updateOne(
           { _id: sub.notes.userId },
-          { $pull: { activePlans: { razorpaySubscriptionId: sub.id } } }
+          {
+            $pull: { activePlans: { razorpaySubscriptionId: sub.id } },
+            $set: { config: EMPTY_PLAN.features },
+          }
         );
 
         // 3️⃣ If halted (blocked), cancel subscription in Razorpay

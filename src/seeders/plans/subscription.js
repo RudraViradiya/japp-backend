@@ -1,3 +1,31 @@
+export const EMPTY_PLAN = {
+  name: "Free Trail",
+  planId: "",
+  description: "empty plan with limited features",
+  type: "order",
+  features: {
+    modelCredit: 0,
+    material: 10,
+    preset: 10,
+    customAssets: 1,
+    imageResolution: "2k",
+    videoResolution: "2k",
+    displayQuality: "medium",
+    singleImageGeneration: 10,
+    multiImageGeneration: 2,
+    customVideoAngle: true,
+    embed: true,
+    aiImageGeneration: true,
+    aiImageCredit: 0,
+    multiImageFromCAD: true,
+    pdfCatalogue: true,
+    playground: false,
+  },
+  prices: [{ currency: "INR", amount: 0 }],
+  durationInDays: 0,
+  weight: 10,
+};
+
 export const DEFAULT_PLAN = {
   name: "Free Trail",
   planId: "",
@@ -23,6 +51,7 @@ export const DEFAULT_PLAN = {
   },
   prices: [{ currency: "INR", amount: 0 }],
   durationInDays: 3,
+  weight: 10,
 };
 
 export default [
@@ -51,6 +80,7 @@ export default [
     },
     prices: [{ currency: "INR", amount: 34999 }],
     durationInDays: 30,
+    weight: 30,
   },
   {
     name: "Growth Plan",
@@ -77,6 +107,7 @@ export default [
     },
     prices: [{ currency: "INR", amount: 79999 }],
     durationInDays: 30,
+    weight: 40,
   },
   {
     name: "Pro Studio Plan",
@@ -103,5 +134,6 @@ export default [
     },
     prices: [{ currency: "INR", amount: 149999 }],
     durationInDays: 30,
+    weight: 50,
   },
 ];

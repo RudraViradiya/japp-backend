@@ -2,62 +2,12 @@
 import Razorpay from "razorpay";
 import PlanModel from "../model/plan.model.js";
 import SubscriptionModel from "../model/subscription.model.js";
+import UserModel from "../model/user.model.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-
-// export const createOrder = async (req, res) => {
-//   try {
-//     const { planId, currency } = req.body;
-
-//     const userId = req.userId;
-//     const plan = await PlanModel.findOne({ planId });
-//     if (!plan)
-//       return res.badRequest({ status: 400, message: "Plan not found" });
-
-//     const priceObj = plan.prices.find((p) => p.currency === currency);
-//     if (!priceObj)
-//       return res.badRequest({ status: 400, message: "Currency not supported" });
-
-//     const options = {
-//       amount: priceObj.amount * 100,
-//       currency: "INR",
-//       receipt: `receipt_${Date.now()}`,
-//     };
-
-//     const order = await razorpay.orders.create(options);
-
-//     // Save transaction as created
-//     const transaction = new TransactionModel({
-//       name: "Subscription",
-//       userId,
-//       planId,
-//       razorpayOrderId: order.id,
-//       amount: priceObj.amount * 100,
-//       currency: currency,
-//       status: "created",
-//     });
-//     await transaction.save();
-
-//     res.ok({
-//       status: 200,
-//       data: {
-//         order_id: order.id,
-//         amount: order.amount,
-//         currency: order.currency,
-//         name: "Gemora Studio",
-//         description: plan.description,
-//         // plan,
-//       },
-//       message: "Payment created Successfully",
-//     });
-//   } catch (error) {
-//     console.log("🚀 - createOrder - error:", error);
-//     return res.failureResponse();
-//   }
-// };
 
 export const createSubscription = async (req, res) => {
   try {
@@ -118,76 +68,59 @@ export const createSubscription = async (req, res) => {
   }
 };
 
-// export const verifyPayment = async (req, res) => {
-//   try {
-//     const {
-//       razorpay_order_id,
-//       razorpay_payment_id,
-//       razorpay_signature,
-//       userId,
-//       planId,
-//     } = req.body;
+export const cancelSubscription = async (req, res) => {
+  try {
+    const { subscriptionId } = req.body;
+    const userId = req.userId;
 
-//     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
-//     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
-//     const generatedSignature = hmac.digest("hex");
+    if (!subscriptionId) {
+      return res.badRequest({
+        status: 400,
+        message: "SubscriptionId required",
+      });
+    }
 
-//     if (generatedSignature !== razorpay_signature) {
-//       // update transaction as failed
-//       await Transaction.findOneAndUpdate(
-//         { razorpayOrderId: razorpay_order_id },
-//         {
-//           razorpayPaymentId: razorpay_payment_id,
-//           razorpaySignature: razorpay_signature,
-//           status: "failed",
-//         }
-//       );
-//       return res.badRequest({
-//         status: 400,
-//         success: false,
-//         message: "Invalid signature",
-//       });
-//     }
+    const subscription = await SubscriptionModel.findOne({
+      userId,
+      razorpaySubscriptionId: subscriptionId,
+    });
 
-//     // Payment verified, update user plan
-//     const plan = await PlanModel.findById(planId);
-//     const user = await UserModel.findById(userId);
+    if (!subscription) {
+      return res.badRequest({
+        status: 400,
+        message: "Subscription not found",
+      });
+    }
 
-//     if (!plan || !user)
-//       return res.badRequest({ status: 400, message: "User or Plan not found" });
+    // Cancel subscription in Razorpay
+    const cancelled = await razorpay.subscriptions.cancel(subscriptionId, true);
 
-//     const startDate = new Date();
-//     const endDate = new Date();
-//     endDate.setDate(endDate.getDate() + (plan.durationInDays || 30));
+    // Update SubscriptionModel in DB
+    await SubscriptionModel.findOneAndUpdate(
+      { userId, razorpaySubscriptionId: subscriptionId },
+      { status: "cancelled", endDate: new Date() }
+    );
 
-//     user.activePlans = {
-//       planId: plan._id,
-//       orderId: razorpay_order_id,
-//       paymentId: razorpay_payment_id,
-//       startDate,
-//       endDate,
-//       features: plan.features,
-//     };
+    await UserModel.findByIdAndUpdate(
+      userId,
+      {
+        $set: { "activePlans.$[elem].status": "cancelled" },
+      },
+      {
+        arrayFilters: [{ "elem.razorpaySubscriptionId": subscriptionId }],
+        new: true,
+      }
+    );
 
-//     await user.save();
-
-//     // update transaction as paid
-//     await TransactionModel.findOneAndUpdate(
-//       { razorpayOrderId: razorpay_order_id },
-//       {
-//         razorpayPaymentId: razorpay_payment_id,
-//         razorpaySignature: razorpay_signature,
-//         status: "paid",
-//       }
-//     );
-
-//     res.ok({
-//       status: 200,
-//       message: "Payment verified & plan activated",
-//       data: user,
-//     });
-//   } catch (error) {
-//     console.log("🚀 - verifyPayment - error:", error);
-//     return res.failureResponse();
-//   }
-// };
+    return res.ok({
+      status: 200,
+      message: "Subscription cancelled successfully",
+      data: cancelled,
+    });
+  } catch (error) {
+    console.error("🚀 - cancelSubscription - error:", error);
+    return res.failureResponse(
+      error.message || "Failed to cancel subscription"
+    );
+  }
+};
