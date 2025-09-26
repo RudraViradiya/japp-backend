@@ -61,13 +61,15 @@ const schema = new Schema(
 
     planId: { type: String },
 
+    weight: { type: Number },
+
     description: { type: String },
 
     durationInDays: { type: Number },
 
     type: {
       type: String,
-      enum: ["subscription", "credits", "custom"],
+      enum: ["subscription", "credits", "order", "custom"],
       required: true,
     },
 

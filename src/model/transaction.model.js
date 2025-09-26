@@ -18,11 +18,7 @@ const schema = new Schema(
 
     planId: { type: String, required: true },
 
-    razorpaySubscriptionId: { type: String, required: true },
-
-    razorpayPaymentId: { type: String },
-
-    razorpaySignature: { type: String },
+    orderId: { type: String },
 
     amount: { type: Number, required: true },
 
@@ -32,6 +28,10 @@ const schema = new Schema(
       type: String,
       default: "created",
     },
+
+    payload: { type: Object },
+
+    order: { type: Object },
 
     createdAt: { type: Date },
 
