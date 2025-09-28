@@ -106,16 +106,35 @@ export const getAllByUser = async (req, res) => {
       });
     }
 
-    const models = await ModelModel.find(
-      { userId: req.userId },
-      { _id: 1, name: 1, thumbnail: 1, sku: 1, type: 1, note: 1, createdAt: 1 }
-    );
+    const { search, category, page = 1, limit = 10 } = req.query;
 
+    // Build query object
+    let query = { userId: req.userId };
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+    }
+
+    if (category) {
+      query.type = category; // only matches specific enum/type
+    }
+
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      select: "_id name thumbnail sku type note createdAt",
+      sort: { createdAt: -1 },
+      lean: true,
+    };
+
+    const models = await ModelModel.paginate(query, options);
     return res.ok({
       status: 200,
-      data: models,
+      data: {
+        data: models.data,
+        totalPages: models.paginator.pageCount,
+      },
       message: "Models fetched successfully",
-      count: models.length,
     });
   } catch (error) {
     return res.failureResponse();
