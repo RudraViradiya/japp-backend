@@ -13,33 +13,41 @@ export const getMetalMaterials = async (req, res) => {
         message: "UserId is required",
       });
     }
-    const materials = await MaterialModel.aggregate([
-      {
-        $match: {
-          category: "metal_material",
-          $or: [
-            { userId: null },
-            { userId: new mongoose.Types.ObjectId(req.userId) },
-          ],
-        },
-      },
-      {
-        $facet: {
-          userItems: [
-            { $match: { userId: new mongoose.Types.ObjectId(req.userId) } },
-            { $sort: { createdAt: -1 } },
-          ],
-          defaultItems: [{ $match: { userId: null } }],
-        },
-      },
-      {
-        $project: {
-          allItems: { $concatArrays: ["$userItems", "$defaultItems"] },
-        },
-      },
-      { $unwind: "$allItems" },
-      { $replaceRoot: { newRoot: "$allItems" } },
-    ]);
+
+    const materials = await MaterialModel.find({
+      category: "metal_material",
+      $or: [
+        { userId: null },
+        { userId: new mongoose.Types.ObjectId(req.userId) },
+      ],
+    }).sort({ userId: -1, name: 1 });
+    // const materials = await MaterialModel.aggregate([
+    //   {
+    //     $match: {
+    //       category: "metal_material",
+    //       $or: [
+    //         { userId: null },
+    //         { userId: new mongoose.Types.ObjectId(req.userId) },
+    //       ],
+    //     },
+    //   },
+    // {
+    //   $facet: {
+    //     userItems: [
+    //       { $match: { userId: new mongoose.Types.ObjectId(req.userId) } },
+    //       { $sort: { createdAt: -1 } },
+    //     ],
+    //     defaultItems: [{ $match: { userId: null } }],
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     allItems: { $concatArrays: ["$userItems", "$defaultItems"] },
+    //   },
+    // },
+    // { $unwind: "$allItems" },
+    // { $replaceRoot: { newRoot: "$allItems" } },
+    // ]);
 
     return res.ok({
       status: 200,
@@ -62,33 +70,40 @@ export const getGemMaterials = async (req, res) => {
       });
     }
 
-    const materials = await MaterialModel.aggregate([
-      {
-        $match: {
-          category: "gem_material",
-          $or: [
-            { userId: null },
-            { userId: new mongoose.Types.ObjectId(req.userId) },
-          ],
-        },
-      },
-      {
-        $facet: {
-          userItems: [
-            { $match: { userId: new mongoose.Types.ObjectId(req.userId) } },
-            { $sort: { createdAt: -1 } },
-          ],
-          defaultItems: [{ $match: { userId: null } }],
-        },
-      },
-      {
-        $project: {
-          allItems: { $concatArrays: ["$userItems", "$defaultItems"] },
-        },
-      },
-      { $unwind: "$allItems" },
-      { $replaceRoot: { newRoot: "$allItems" } },
-    ]);
+    const materials = await MaterialModel.find({
+      category: "gem_material",
+      $or: [
+        { userId: null },
+        { userId: new mongoose.Types.ObjectId(req.userId) },
+      ],
+    }).sort({ userId: -1, name: 1 });
+    // const materials = await MaterialModel.aggregate([
+    //   {
+    //     $match: {
+    //       category: "gem_material",
+    //       $or: [
+    //         { userId: null },
+    //         { userId: new mongoose.Types.ObjectId(req.userId) },
+    //       ],
+    //     },
+    //   },
+    // {
+    //   $facet: {
+    //     userItems: [
+    //       { $match: { userId: new mongoose.Types.ObjectId(req.userId) } },
+    //       { $sort: { createdAt: -1 } },
+    //     ],
+    //     defaultItems: [{ $match: { userId: null } }],
+    //   },
+    // },
+    // {
+    //   $project: {
+    //     allItems: { $concatArrays: ["$userItems", "$defaultItems"] },
+    //   },
+    // },
+    // { $unwind: "$allItems" },
+    // { $replaceRoot: { newRoot: "$allItems" } },
+    // ]);
     return res.ok({
       status: 200,
       data: materials,
