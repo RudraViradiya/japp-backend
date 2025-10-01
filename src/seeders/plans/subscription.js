@@ -58,7 +58,7 @@ export default [
   DEFAULT_PLAN,
   {
     name: "Small Plan",
-    planId: "plan_RMKQHj39CN2KZe",
+    planId: "plan_ROG4g8SOLKXxG2",
     description: "Small plan for beginners",
     type: "order",
     features: {
@@ -79,13 +79,13 @@ export default [
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 17_500 }],
+    prices: [{ currency: "INR", amount: 17_499 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 20,
   },
   {
     name: "Starter Plan",
-    planId: "plan_RKjWPFVJZNFt7l",
+    planId: "plan_ROG6gbK7PE0ghF",
     description: "Starter plan with limited features",
     type: "order",
     features: {
@@ -106,13 +106,13 @@ export default [
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 25_000 }],
+    prices: [{ currency: "INR", amount: 24_999 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 30,
   },
   {
     name: "Growth Plan",
-    planId: "plan_RKjXLhQxbdT3rL",
+    planId: "plan_ROGByV07fnAzU6",
     description: "Growth plan with extended features",
     type: "order",
     features: {
@@ -133,13 +133,13 @@ export default [
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 55_000 }],
+    prices: [{ currency: "INR", amount: 54_999 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 40,
   },
   {
     name: "Pro Studio Plan",
-    planId: "plan_RKjXdutBCioAhq",
+    planId: "plan_ROGEJmz3xzX9ls",
     description: "Pro Studio plan with full features",
     type: "order",
     features: {
@@ -160,7 +160,7 @@ export default [
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 1_10_000 }],
+    prices: [{ currency: "INR", amount: 1_09_999 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 50,
   },

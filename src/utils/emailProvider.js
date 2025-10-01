@@ -65,7 +65,7 @@ export const sendOtpEmail = async (email, name, otp) => {
   });
 
   await transporter.sendMail({
-    from: "rudraviradiya002@gmail.com",
+    from: "info@gemorastudio.com",
     to: email,
     subject: "Account Verification - OTP",
     html: htmlTemplate(name, otp),
