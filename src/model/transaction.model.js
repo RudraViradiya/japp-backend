@@ -18,6 +18,8 @@ const schema = new Schema(
 
     planId: { type: String, required: true },
 
+    type: { type: String, default: "MAIN_PLAN" },
+
     orderId: { type: String },
 
     amount: { type: Number, required: true },

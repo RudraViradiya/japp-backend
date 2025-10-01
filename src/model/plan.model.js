@@ -20,6 +20,7 @@ const featureSchema = new mongoose.Schema({
   preset: { type: Number, default: 0 },
 
   customAssets: { type: Number, default: 0 }, // updated from boolean
+
   displayQuality: {
     type: String,
     enum: ["low", "medium", "high", "ultra high"],
@@ -36,9 +37,11 @@ const featureSchema = new mongoose.Schema({
     default: "hd",
   },
 
-  singleImageGeneration: { type: Number, default: 0 },
+  imageCredit: { type: Number, default: 0 },
 
-  multiImageGeneration: { type: Number, default: 0 },
+  videoCredit: { type: Number, default: 0 },
+
+  maxVariant: { type: Number, default: 1 },
 
   customVideoAngle: { type: Boolean, default: false }, // video shoot
 

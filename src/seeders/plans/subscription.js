@@ -1,5 +1,5 @@
 export const EMPTY_PLAN = {
-  name: "Free Trail",
+  name: "Default Plan",
   planId: "",
   description: "empty plan with limited features",
   type: "order",
@@ -36,16 +36,16 @@ export const DEFAULT_PLAN = {
     material: 100,
     preset: 100,
     customAssets: 2,
-    imageCredit: 24,
-    videoCredit: 8,
+    imageCredit: 30,
+    videoCredit: 128,
     aiImageCredit: 3,
-    maxVariant: 3,
+    maxVariant: 2,
     imageResolution: "2k",
     videoResolution: "2k",
     displayQuality: "medium",
-    customVideoAngle: true, // used later
     embed: true,
     multiImageFromCAD: true,
+    customVideoAngle: true, // used later
     pdfCatalogue: true, // used later
     playground: false, // used later
   },
@@ -55,31 +55,31 @@ export const DEFAULT_PLAN = {
 };
 
 export default [
+  DEFAULT_PLAN,
   {
     name: "Small Plan",
     planId: "plan_RMKQHj39CN2KZe",
     description: "Small plan for beginners",
     type: "order",
     features: {
-      modelCredit: 100,
+      modelCredit: 50,
       material: 100,
       preset: 100,
-      customAssets: 5,
-      imageCredit: Number.MAX_SAFE_INTEGER,
-      videoCredit: 4,
-      aiImageCredit: 300,
-      maxVariant: 2,
+      customAssets: 10,
+      imageCredit: 500,
+      videoCredit: 200,
+      aiImageCredit: 150,
+      maxVariant: 4,
       imageResolution: "4k",
       videoResolution: "4k",
       displayQuality: "high",
-      customVideoAngle: true, // used later
       embed: true,
-
       multiImageFromCAD: true,
+      customVideoAngle: true, // used later
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 22999 }],
+    prices: [{ currency: "INR", amount: 17_500 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 20,
   },
@@ -89,25 +89,24 @@ export default [
     description: "Starter plan with limited features",
     type: "order",
     features: {
-      modelCredit: 50,
+      modelCredit: 100,
       material: 100,
       preset: 100,
-      customAssets: 3,
-      imageCredit: Number.MAX_SAFE_INTEGER,
-      videoCredit: 4,
-      aiImageCredit: 150,
-      maxVariant: 2,
+      customAssets: 25,
+      imageCredit: 1000,
+      videoCredit: 400,
+      aiImageCredit: 300,
+      maxVariant: 8,
       imageResolution: "4k",
       videoResolution: "4k",
       displayQuality: "high",
-      customVideoAngle: true, // used later
       embed: true,
-
       multiImageFromCAD: true,
+      customVideoAngle: true, // used later
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 34999 }],
+    prices: [{ currency: "INR", amount: 25_000 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 30,
   },
@@ -120,21 +119,21 @@ export default [
       modelCredit: 250,
       material: 100,
       preset: 100,
-      customAssets: 10,
-      imageCredit: Number.MAX_SAFE_INTEGER,
-      videoCredit: 10,
+      customAssets: 75,
+      imageCredit: 2500,
+      videoCredit: 1000,
       aiImageCredit: 750,
-      maxVariant: 2,
+      maxVariant: 10,
       imageResolution: "4k",
       videoResolution: "4k",
       displayQuality: "high",
-      customVideoAngle: true, // used later
       embed: true,
       multiImageFromCAD: true,
+      customVideoAngle: true, // used later
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 79999 }],
+    prices: [{ currency: "INR", amount: 55_000 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 40,
   },
@@ -147,23 +146,21 @@ export default [
       modelCredit: 500,
       material: 100,
       preset: 100,
-      imageCredit: Number.MAX_SAFE_INTEGER,
-      videoCredit: Number.MAX_SAFE_INTEGER,
+      customAssets: 200,
+      imageCredit: 5000,
+      videoCredit: 2000,
       aiImageCredit: 1500,
-      customAssets: Number.MAX_SAFE_INTEGER,
-      maxVariant: 2,
-
+      maxVariant: 25,
       imageResolution: "8k",
       videoResolution: "8k",
-      displayQuality: "high",
-      customVideoAngle: true, // used later
+      displayQuality: "ultra high",
       embed: true,
-
       multiImageFromCAD: true,
+      customVideoAngle: true, // used later
       pdfCatalogue: true, // used later
       playground: false, // used later
     },
-    prices: [{ currency: "INR", amount: 149999 }],
+    prices: [{ currency: "INR", amount: 1_10_000 }],
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 50,
   },

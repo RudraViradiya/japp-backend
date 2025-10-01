@@ -33,6 +33,8 @@ export const razorpayWebhook = async (req, res) => {
     switch (event) {
       case "payment.captured": {
         const orderId = payload.order_id;
+        const planType = payload.notes.type;
+        const userId = payload.notes.userId;
 
         await TransactionModel.findOneAndUpdate(
           { orderId },
@@ -40,42 +42,62 @@ export const razorpayWebhook = async (req, res) => {
           { new: true }
         );
 
-        const plan = await PlanModel.findOne({ planId: payload.notes.planId });
-
-        const user = await UserModel.findById(payload.notes.userId);
-
-        if (user.activePlans.length > 1) {
-          const newConfig = [user.config, plan.features]
-            .sort((a, b) => a.weight - b.weight)
-            .reduce((acc, curr) => {
-              if (!acc) return curr;
-              curr.modelCredit += acc?.modelCredit || 0;
-              return curr;
-            }, undefined);
-
-          await UserModel.findByIdAndUpdate(payload.notes.userId, {
-            $push: {
-              activePlans: {
-                ...plan,
-                startDate: null,
-                endDate: null,
-                status: "active",
-              },
-            },
-            $set: { config: newConfig },
+        if (planType === "MAIN_PLAN") {
+          const plan = await PlanModel.findOne({
+            planId: payload.notes.planId,
           });
+
+          const user = await UserModel.findById(userId);
+
+          if (user.activePlans.length > 1) {
+            const newConfig = [user.config, plan.features]
+              .sort((a, b) => a.weight - b.weight)
+              .reduce((acc, curr) => {
+                if (!acc) return curr;
+                // curr.modelCredit += acc?.modelCredit || 0;
+                return curr;
+              }, undefined);
+
+            await UserModel.findByIdAndUpdate(userId, {
+              $push: {
+                activePlans: {
+                  ...plan,
+                  startDate: null,
+                  endDate: null,
+                  status: "active",
+                },
+              },
+              $set: { config: newConfig },
+            });
+          } else {
+            await UserModel.findByIdAndUpdate(userId, {
+              $push: {
+                activePlans: {
+                  ...plan,
+                  startDate: null,
+                  endDate: null,
+                  status: "active",
+                },
+              },
+              $set: { config: plan.features },
+            });
+          }
         } else {
-          await UserModel.findByIdAndUpdate(payload.notes.userId, {
-            $push: {
-              activePlans: {
-                ...plan,
-                startDate: null,
-                endDate: null,
-                status: "active",
-              },
-            },
-            $set: { config: plan.features },
-          });
+          const config = payload.notes;
+          const key = config.planType;
+          const count = +config.planCount;
+
+          await TransactionModel.findOneAndUpdate(
+            { orderId },
+            { status: "success", payload },
+            { new: true }
+          );
+
+          console.log("🚀 - razorpayWebhook - count:", { userId, key, count });
+          await UserModel.updateOne(
+            { _id: userId },
+            { $inc: { [`config.${key}`]: count } }
+          );
         }
       }
 

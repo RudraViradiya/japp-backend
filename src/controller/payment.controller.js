@@ -4,6 +4,7 @@ import PlanModel from "../model/plan.model.js";
 import SubscriptionModel from "../model/subscription.model.js";
 import UserModel from "../model/user.model.js";
 import TransactionModel from "../model/transaction.model.js";
+import { type } from "os";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -155,6 +156,7 @@ export const createOrder = async (req, res) => {
       name: "Plan Purchase",
       userId: req.userId,
       planId: planId,
+      type: "MAIN_PLAN",
       orderId: order.id,
       amount: price.amount,
       currency: currency,
@@ -173,7 +175,78 @@ export const createOrder = async (req, res) => {
           contact: user.phoneNo,
         },
 
-        notes: { email: user.email, userId: req.userId, planId: planId },
+        notes: {
+          email: user.email,
+          userId: req.userId,
+          planId: planId,
+          type: "MAIN_PLAN",
+        },
+        theme: { color: "#c4a484" },
+      },
+      message: "Payment order created successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const createTopUpOrder = async (req, res) => {
+  try {
+    const { planId, currency, amount, type, count } = req.body;
+
+    // Fetch user details
+    const user = await UserModel.findById(req.userId);
+
+    if (!user)
+      return res.badRequest({ status: 400, message: "User not found" });
+
+    // Fetch plan details
+    // const plan = await PlanModel.findOne({ planId });
+    // if (!plan)
+    //   return res.badRequest({ status: 400, message: "Plan not found" });
+
+    // Razorpay order
+
+    // const price = plan.prices.find((p) => p.currency === currency);
+    const order = await razorpay.orders.create({
+      amount: amount * 100, // convert to paise
+      currency: currency,
+      receipt: "txn_" + Date.now(),
+      notes: { userId: req.userId, planId: planId },
+    });
+
+    await TransactionModel.create({
+      name: "Top Up Purchase",
+      userId: req.userId,
+      planId: planId,
+      type: "TOP_UP_PLAN",
+      orderId: order.id,
+      amount: amount,
+      currency: currency,
+      status: "pending",
+    });
+
+    res.ok({
+      status: 200,
+      data: {
+        ...order,
+        name: "Gemora Studio",
+        description: `Buy Topup for ${type}`,
+        order_id: order.id,
+        prefill: {
+          email: user.email,
+          contact: user.phoneNo,
+        },
+
+        notes: {
+          email: user.email,
+          userId: req.userId,
+          planId: "Top Up",
+          type: "TOP_UP_PLAN",
+          planType: type,
+          planCount: count,
+        },
         theme: { color: "#c4a484" },
       },
       message: "Payment order created successfully",
