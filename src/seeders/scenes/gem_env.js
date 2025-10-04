@@ -128,15 +128,6 @@ export default [
   {
     type: "gem_env",
     category: "gem_env",
-    name: "env gem 020",
-    thumbnail: "assets/thumbnails/env_gem_020.png",
-    value: "assets/gem_env/env_gem_020.exr",
-    userId: null,
-    weight: 10,
-  },
-  {
-    type: "gem_env",
-    category: "gem_env",
     name: "env gem 021",
     thumbnail: "assets/thumbnails/env_gem_021.png",
     value: "assets/gem_env/env_gem_021.exr",

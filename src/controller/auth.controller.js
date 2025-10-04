@@ -162,7 +162,7 @@ export const login = async (req, res) => {
         const { token, refreshToken } = await generateToken(user._id);
 
         if (user.isBlocked) {
-          return res.unAuthorizedRequest({
+          return res.badRequest({
             message: "User is blocked, please contact admin",
           });
         }

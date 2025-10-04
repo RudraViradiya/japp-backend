@@ -111,8 +111,10 @@ export const getAllByUser = async (req, res) => {
     // Build query object
     let query = { userId: req.userId };
 
+    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
     if (search) {
-      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+      query.name = { $regex: escapeRegex(search), $options: "i" }; // case-insensitive search
     }
 
     if (category) {
@@ -137,6 +139,7 @@ export const getAllByUser = async (req, res) => {
       message: "Models fetched successfully",
     });
   } catch (error) {
+    console.log("🚀 - getAllByUser - error:", error);
     return res.failureResponse();
   }
 };

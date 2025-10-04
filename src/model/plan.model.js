@@ -9,6 +9,8 @@ const { Schema } = mongoose;
 const priceSchema = new mongoose.Schema({
   currency: { type: String, required: true },
 
+  symbol: { type: String, required: true },
+
   amount: { type: Number, required: true },
 });
 
@@ -51,7 +53,7 @@ const featureSchema = new mongoose.Schema({
 
   aiImageCredit: { type: Number, default: 0 },
 
-  multiImageFromCAD: { type: Number, default: 0 },
+  multiImageFromCAD: { type: Boolean, default: 0 },
 
   pdfCatalogue: { type: Boolean, default: false },
 

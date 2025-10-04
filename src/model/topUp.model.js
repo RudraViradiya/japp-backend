@@ -9,6 +9,8 @@ const { Schema } = mongoose;
 const priceSchema = new mongoose.Schema({
   currency: { type: String, required: true },
 
+  symbol: { type: String, required: true },
+
   amount: { type: Number, required: true },
 });
 

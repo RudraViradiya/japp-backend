@@ -1,3 +1,26 @@
+const CURRENCY_LIST = [
+  { currency: "INR", symbol: "₹" },
+  { currency: "USD", symbol: "$" },
+  { currency: "EUR", symbol: "€" },
+  { currency: "GBP", symbol: "£" },
+];
+
+// Example static conversion rates (can be adjusted)
+const STATIC_PRICES = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+  GBP: 0.0098,
+};
+
+// Helper to generate prices with symbols
+const generatePrices = (amountINR) =>
+  CURRENCY_LIST.map(({ currency, symbol }) => ({
+    currency,
+    symbol,
+    amount: Math.round(amountINR * STATIC_PRICES[currency]),
+  }));
+
 export const EMPTY_PLAN = {
   name: "Default Plan",
   planId: "",
@@ -21,7 +44,7 @@ export const EMPTY_PLAN = {
     pdfCatalogue: true,
     playground: false,
   },
-  prices: [{ currency: "INR", amount: 0 }],
+  prices: generatePrices(0),
   durationInDays: 0,
   weight: 10,
 };
@@ -37,7 +60,7 @@ export const DEFAULT_PLAN = {
     preset: 100,
     customAssets: 2,
     imageCredit: 30,
-    videoCredit: 128,
+    videoCredit: 12,
     aiImageCredit: 3,
     maxVariant: 2,
     imageResolution: "2k",
@@ -49,7 +72,7 @@ export const DEFAULT_PLAN = {
     pdfCatalogue: true, // used later
     playground: false, // used later
   },
-  prices: [{ currency: "INR", amount: 0 }],
+  prices: generatePrices(0),
   durationInDays: 5,
   weight: 10,
 };
@@ -75,11 +98,11 @@ export default [
       displayQuality: "high",
       embed: true,
       multiImageFromCAD: true,
-      customVideoAngle: true, // used later
-      pdfCatalogue: true, // used later
-      playground: false, // used later
+      customVideoAngle: true,
+      pdfCatalogue: true,
+      playground: false,
     },
-    prices: [{ currency: "INR", amount: 17_499 }],
+    prices: generatePrices(17499),
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 20,
   },
@@ -102,11 +125,11 @@ export default [
       displayQuality: "high",
       embed: true,
       multiImageFromCAD: true,
-      customVideoAngle: true, // used later
-      pdfCatalogue: true, // used later
-      playground: false, // used later
+      customVideoAngle: true,
+      pdfCatalogue: true,
+      playground: false,
     },
-    prices: [{ currency: "INR", amount: 24_999 }],
+    prices: generatePrices(24999),
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 30,
   },
@@ -129,11 +152,11 @@ export default [
       displayQuality: "high",
       embed: true,
       multiImageFromCAD: true,
-      customVideoAngle: true, // used later
-      pdfCatalogue: true, // used later
-      playground: false, // used later
+      customVideoAngle: true,
+      pdfCatalogue: true,
+      playground: false,
     },
-    prices: [{ currency: "INR", amount: 54_999 }],
+    prices: generatePrices(54999),
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 40,
   },
@@ -156,11 +179,11 @@ export default [
       displayQuality: "ultra high",
       embed: true,
       multiImageFromCAD: true,
-      customVideoAngle: true, // used later
-      pdfCatalogue: true, // used later
-      playground: false, // used later
+      customVideoAngle: true,
+      pdfCatalogue: true,
+      playground: false,
     },
-    prices: [{ currency: "INR", amount: 1_09_999 }],
+    prices: generatePrices(109999),
     durationInDays: Number.MAX_SAFE_INTEGER,
     weight: 50,
   },

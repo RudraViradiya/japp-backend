@@ -1,3 +1,26 @@
+const CURRENCY_LIST = [
+  { currency: "INR", symbol: "₹" },
+  { currency: "USD", symbol: "$" },
+  { currency: "EUR", symbol: "€" },
+  { currency: "GBP", symbol: "£" },
+];
+
+// Example static conversion rates (can be adjusted)
+const STATIC_PRICES = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+  GBP: 0.0098,
+};
+
+// Helper to generate prices with symbols
+const generatePrices = (amountINR) =>
+  CURRENCY_LIST.map(({ currency, symbol }) => ({
+    currency,
+    symbol,
+    amount: Math.round(amountINR * STATIC_PRICES[currency]),
+  }));
+
 const CREDITS = [
   {
     name: "Starter Pack",
@@ -5,9 +28,9 @@ const CREDITS = [
     description: "15 model credits for quick experiments",
     type: "modelCredit",
     features: { modelCredit: 15 },
-    prices: [{ currency: "INR", amount: 0 }],
+    prices: generatePrices(0),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 10,
     isActive: true,
   },
   {
@@ -16,9 +39,9 @@ const CREDITS = [
     description: "50 model credits to get started",
     type: "modelCredit",
     features: { modelCredit: 50 },
-    prices: [{ currency: "INR", amount: 0 }],
+    prices: generatePrices(0),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 20,
     isActive: true,
   },
   {
@@ -27,9 +50,9 @@ const CREDITS = [
     description: "100 model credits for regular usage",
     type: "modelCredit",
     features: { modelCredit: 100 },
-    prices: [{ currency: "INR", amount: 0 }],
+    prices: generatePrices(0),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 30,
     isActive: true,
   },
   {
@@ -38,9 +61,9 @@ const CREDITS = [
     description: "500 model credits for professionals",
     type: "modelCredit",
     features: { modelCredit: 500 },
-    prices: [{ currency: "INR", amount: 0 }],
+    prices: generatePrices(0),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 40,
     isActive: true,
   },
 ];
@@ -51,9 +74,9 @@ const IMAGE = [
     description: "150 image credits for small tasks",
     type: "imageCredit",
     features: { imageCredit: 150 },
-    prices: [{ currency: "INR", amount: 750 }],
+    prices: generatePrices(750),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 10,
     isActive: true,
   },
   {
@@ -62,9 +85,9 @@ const IMAGE = [
     description: "500 image credits for consistent usage",
     type: "imageCredit",
     features: { imageCredit: 500 },
-    prices: [{ currency: "INR", amount: 2500 }],
+    prices: generatePrices(2500),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 20,
     isActive: true,
   },
   {
@@ -73,9 +96,9 @@ const IMAGE = [
     description: "1000 image credits for larger projects",
     type: "imageCredit",
     features: { imageCredit: 1000 },
-    prices: [{ currency: "INR", amount: 5000 }],
+    prices: generatePrices(5000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 30,
     isActive: true,
   },
   {
@@ -84,9 +107,9 @@ const IMAGE = [
     description: "5000 image credits for professionals",
     type: "imageCredit",
     features: { imageCredit: 5000 },
-    prices: [{ currency: "INR", amount: 25000 }],
+    prices: generatePrices(25000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 40,
     isActive: true,
   },
 ];
@@ -98,9 +121,9 @@ const VIDEO = [
     description: "120 video credits for quick projects",
     type: "videoCredit",
     features: { videoCredit: 120 },
-    prices: [{ currency: "INR", amount: 1200 }],
+    prices: generatePrices(1200),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 10,
     isActive: true,
   },
   {
@@ -109,9 +132,9 @@ const VIDEO = [
     description: "400 video credits for growing needs",
     type: "videoCredit",
     features: { videoCredit: 400 },
-    prices: [{ currency: "INR", amount: 4000 }],
+    prices: generatePrices(4000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 20,
     isActive: true,
   },
   {
@@ -120,9 +143,9 @@ const VIDEO = [
     description: "800 video credits for regular usage",
     type: "videoCredit",
     features: { videoCredit: 800 },
-    prices: [{ currency: "INR", amount: 8000 }],
+    prices: generatePrices(8000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 30,
     isActive: true,
   },
   {
@@ -131,9 +154,9 @@ const VIDEO = [
     description: "4000 video credits for professionals",
     type: "videoCredit",
     features: { videoCredit: 4000 },
-    prices: [{ currency: "INR", amount: 40000 }],
+    prices: generatePrices(40000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 40,
     isActive: true,
   },
 ];
@@ -145,9 +168,9 @@ const AI_IMAGE = [
     description: "1200 AI image credits for testing ideas",
     type: "aiImageCredit",
     features: { aiImageCredit: 1200 },
-    prices: [{ currency: "INR", amount: 12000 }],
+    prices: generatePrices(12000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 10,
     isActive: true,
   },
   {
@@ -156,9 +179,9 @@ const AI_IMAGE = [
     description: "4000 AI image credits for creative work",
     type: "aiImageCredit",
     features: { aiImageCredit: 4000 },
-    prices: [{ currency: "INR", amount: 40000 }],
+    prices: generatePrices(40000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 20,
     isActive: true,
   },
   {
@@ -167,9 +190,9 @@ const AI_IMAGE = [
     description: "8000 AI image credits for heavy projects",
     type: "aiImageCredit",
     features: { aiImageCredit: 8000 },
-    prices: [{ currency: "INR", amount: 80000 }],
+    prices: generatePrices(80000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 30,
     isActive: true,
   },
   {
@@ -178,9 +201,9 @@ const AI_IMAGE = [
     description: "40000 AI image credits for professionals",
     type: "aiImageCredit",
     features: { aiImageCredit: 40000 },
-    prices: [{ currency: "INR", amount: 400000 }],
+    prices: generatePrices(400000),
     durationInDays: Number.MAX_SAFE_INTEGER,
-    weight: 0,
+    weight: 40,
     isActive: true,
   },
 ];
