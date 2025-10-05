@@ -6,7 +6,7 @@ const creationModel = joi
     name: joi.string().required(),
     sku: joi.string().required(),
     type: joi.string().required(),
-    note: joi.string(),
+    note: joi.string().optional().allow(""),
     modelUrl: joi.string(),
     thumbnail: joi.string(),
     modelConfig: joi.string().required(),

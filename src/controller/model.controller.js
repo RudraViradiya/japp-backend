@@ -203,7 +203,6 @@ export const getByIdEmbed = async (req, res) => {
     }
 
     const user = await UserModel.findOne(model.userId);
-    console.log("🚀 - getByIdEmbed - user:", user);
 
     if (!user?.config?.embed) {
       return res.badRequest({
@@ -214,7 +213,7 @@ export const getByIdEmbed = async (req, res) => {
 
     return res.ok({
       status: 200,
-      data: model,
+      data: { ...model.toObject(), maxQuality: user.config.displayQuality },
       message: "Model fetched successfully",
     });
   } catch (error) {
