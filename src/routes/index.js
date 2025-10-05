@@ -7,6 +7,7 @@ import mediaRouter from "./media.routes.js";
 import paymentRouter from "./payment.routes.js";
 import planRouter from "./plan.routes.js";
 import webHookRouter from "./webhook.routes.js";
+import contactRouter from "./contact.routes.js";
 
 const router = express.Router();
 
@@ -25,5 +26,7 @@ router.use("/payment", paymentRouter);
 router.use("/subscription", planRouter);
 
 router.use("/webhook", webHookRouter);
+
+router.use("/contact", contactRouter);
 
 export default router;
