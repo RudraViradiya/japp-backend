@@ -10,4 +10,15 @@ const creationUser = joi
   })
   .unknown(true);
 
-export default { creationUser };
+const updateProfile = joi
+  .object({
+    name: joi.string().optional(),
+    email: joi.string().email().optional(),
+    phone: joi.string().optional(),
+    country: joi.string().optional(),
+    state: joi.string().optional(),
+    city: joi.string().optional(),
+  })
+  .unknown(true);
+
+export default { creationUser, updateProfile };
