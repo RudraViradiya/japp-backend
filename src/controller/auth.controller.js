@@ -207,3 +207,77 @@ export const getUserDetails = async (req, res) => {
     return res.failureResponse();
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const data = req.body;
+    const userId = req.userId;
+
+    // Validate the request data
+    const validateRequest = validation.validateParamsWithJoi(
+      data,
+      authValidator.updateProfile
+    );
+
+    if (!validateRequest.isValid) {
+      return res.badRequest({
+        status: 400,
+        message: `Invalid Params : ${validateRequest.message}`,
+      });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.badRequest({ message: "User not found" });
+    }
+
+    if (user.isBlocked) {
+      return res.unAuthorizedRequest({
+        message: "User is blocked, please contact admin",
+      });
+    }
+
+    // Check if email is being changed and if it already exists
+    if (data.email && data.email !== user.email) {
+      const existingUser = await UserModel.findOne({
+        email: data.email,
+        _id: { $ne: userId },
+      });
+
+      if (existingUser) {
+        return res.badRequest({
+          status: 409,
+          message: "Email already exists",
+        });
+      }
+    }
+
+    // Map phone to phoneNo for the database
+    const updateData = { ...validateRequest.value };
+    if (updateData.phone) {
+      updateData.phoneNo = updateData.phone;
+      delete updateData.phone;
+    }
+
+    // Map country to county for the database
+    if (updateData.country) {
+      updateData.county = updateData.country;
+      delete updateData.country;
+    }
+
+    // Update user profile
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      select: "-password -otp -otpExpires",
+    });
+
+    return res.ok({
+      data: updatedUser,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    return res.failureResponse();
+  }
+};
