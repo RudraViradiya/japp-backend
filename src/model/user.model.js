@@ -41,7 +41,10 @@ const schema = new Schema(
 
     isVerified: { type: Boolean },
 
-    isBlocked: { type: Boolean },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
 
     otp: { type: Number },
 
@@ -65,7 +68,7 @@ schema.methods.isPasswordMatch = async function (password) {
 };
 
 schema.pre("save", async function (next) {
-  this.isBlocked = true;
+  // this.isBlocked = true;
   this.email = this.email.toString().trim().toLowerCase();
   next();
 });
