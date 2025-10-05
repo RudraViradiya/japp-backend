@@ -58,6 +58,7 @@ export const sendOtpEmail = async (email, name, otp) => {
   const transporter = nodemailer.createTransport({
     host: "smtp.sendgrid.net",
     port: 587,
+    secure: true,
     auth: {
       user: "apikey", // literally the word "apikey"
       pass: process.env.SENDGRID_API, // your SendGrid API key
