@@ -4,7 +4,7 @@ import authValidator from "../utils/validation/authValidator.js";
 import { generateToken } from "../utils/common.js";
 import bcrypt from "bcrypt";
 import { sendOtpEmail } from "../utils/emailProvider.js";
-import { DEFAULT_PLAN } from "../seeders/plans/subscription.js";
+import { DEFAULT_PLAN, EMPTY_PLAN } from "../seeders/plans/subscription.js";
 
 export const signUp = async (req, res) => {
   const data = req.body;
@@ -184,7 +184,7 @@ export const login = async (req, res) => {
 
 export const getUserDetails = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.userId).select(
+    let user = await UserModel.findById(req.userId).select(
       "-password -otp -otpExpires"
     );
 
@@ -196,6 +196,32 @@ export const getUserDetails = async (req, res) => {
       return res.unAuthorizedRequest({
         message: "User is blocked, please contact admin",
       });
+    }
+
+    const activePlanIndex = user.activePlans.findIndex(
+      (i) => i.name === "Free Trail"
+    );
+
+    if (activePlanIndex !== -1) {
+      const currentDate = new Date();
+      const planEndDate = new Date(user.activePlans[activePlanIndex].endDate);
+
+      if (currentDate > planEndDate) {
+        const finalPlans = user.activePlans;
+        finalPlans.splice(activePlanIndex, 1);
+
+        // Prepare the update object
+        const updateData =
+          finalPlans.length > 0
+            ? { activePlans: finalPlans }
+            : { activePlans: [], config: EMPTY_PLAN.features };
+
+        user = await UserModel.findOneAndUpdate(
+          { _id: user._id },
+          { $set: updateData },
+          { new: true }
+        );
+      }
     }
 
     return res.ok({
