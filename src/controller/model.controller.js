@@ -114,7 +114,8 @@ export const getAllByUser = async (req, res) => {
     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     if (search) {
-      query.name = { $regex: escapeRegex(search), $options: "i" }; // case-insensitive search
+      const regex = { $regex: escapeRegex(search), $options: "i" };
+      query.$or = [{ name: regex }, { sku: regex }];
     }
 
     if (category) {
@@ -122,9 +123,9 @@ export const getAllByUser = async (req, res) => {
     }
 
     const options = {
-      page: parseInt(page, 10),
+      page: parseInt(+page + 1, 10),
       limit: parseInt(limit, 10),
-      select: "_id name thumbnail sku type note createdAt",
+      select: "_id name thumbnail sku type note createdAt updatedAt",
       sort: { createdAt: -1 },
       lean: true,
     };

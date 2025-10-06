@@ -7,15 +7,15 @@ const { Schema } = mongoose;
 
 const schema = new Schema(
   {
-    firstName: { 
-      type: String, 
+    firstName: {
+      type: String,
       required: true,
-      trim: true
+      trim: true,
     },
-    lastName: { 
-      type: String, 
+    lastName: {
+      type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     email: {
       type: String,
@@ -31,15 +31,15 @@ const schema = new Schema(
         message: (props) => `${props.value} is not a valid email!`,
       },
     },
-    message: { 
-      type: String, 
+    message: {
+      type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     status: {
       type: String,
-      enum: ['new', 'read', 'replied', 'closed'],
-      default: 'new'
+      enum: ["new", "read", "replied", "closed"],
+      default: "new",
     },
     createdAt: { type: Date },
     updatedAt: { type: Date },

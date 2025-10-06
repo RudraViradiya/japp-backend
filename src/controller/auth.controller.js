@@ -63,7 +63,7 @@ export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.badRequest({ status: 404, message: "User not found" });
     }
@@ -164,6 +164,11 @@ export const login = async (req, res) => {
         if (user.isBlocked) {
           return res.badRequest({
             message: "User is blocked, please contact admin",
+          });
+        }
+        if (!user.isVerified) {
+          return res.badRequest({
+            message: "User not verified, please verify your email",
           });
         }
 

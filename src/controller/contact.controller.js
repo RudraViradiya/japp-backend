@@ -20,13 +20,14 @@ export const createContact = async (req, res) => {
     const contact = new ContactModel({
       ...validateRequest.value,
     });
-    
+
     await contact.save();
 
     return res.ok({
       status: 201,
       data: contact,
-      message: "Contact message sent successfully",
+      message:
+        "Thank you for reaching out! We’ve received your message and will get back to you shortly.",
     });
   } catch (error) {
     console.error("Create Contact Error:", error);
@@ -37,24 +38,24 @@ export const createContact = async (req, res) => {
 export const getContacts = async (req, res) => {
   try {
     const { page = 1, limit = 10, status, search } = req.query;
-    
+
     const filter = {};
     if (status) {
       filter.status = status;
     }
     if (search) {
       filter.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { message: { $regex: search, $options: 'i' } }
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { message: { $regex: search, $options: "i" } },
       ];
     }
 
     const contacts = await ContactModel.paginate(filter, {
       page: parseInt(page),
       limit: parseInt(limit),
-      sort: { createdAt: -1 }
+      sort: { createdAt: -1 },
     });
 
     return res.ok({
@@ -71,9 +72,9 @@ export const getContacts = async (req, res) => {
 export const getContactById = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const contact = await ContactModel.findById(id);
-    
+
     if (!contact) {
       return res.badRequest({
         status: 404,
@@ -136,9 +137,9 @@ export const updateContactStatus = async (req, res) => {
 export const deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const contact = await ContactModel.findByIdAndDelete(id);
-    
+
     if (!contact) {
       return res.badRequest({
         status: 404,
