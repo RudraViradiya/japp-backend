@@ -190,11 +190,11 @@ export const getByIdEmbed = async (req, res) => {
     if (!id) {
       return res.badRequest({
         status: 400,
-        message: "Model ID is required",
+        message: "SKU ID is required",
       });
     }
 
-    const model = await ModelModel.findById(id);
+    const model = await ModelModel.findOne({ sku: id });
 
     if (!model) {
       return res.notFound({
