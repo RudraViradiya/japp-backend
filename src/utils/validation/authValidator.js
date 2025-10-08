@@ -6,7 +6,7 @@ const creationUser = joi
     name: joi.string().required(),
     email: joi.string().required(),
     password: joi.string().required(),
-    phone: joi.string().required(),
+    phoneNo: joi.number().required(),
   })
   .unknown(true);
 
