@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 
-const jwtExpiry = process.env.JWTEXPIRY || 1440;
+const jwtExpiry = process.env.JWTEXPIRY || 44;
 const jwtRefreshExpiry = process.env.JWT_REFRESH_EXPIRY || 1440;
 const secretKey = process.env.SECRET_KEY;
 

@@ -55,20 +55,24 @@ const htmlTemplate = (name, otp) => `
 `;
 
 export const sendOtpEmail = async (email, name, otp) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.sendgrid.net",
-    port: 587,
-    // secure: true,
-    auth: {
-      user: "apikey", // literally the word "apikey"
-      pass: process.env.SENDGRID_API, // your SendGrid API key
-    },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.zoho.in",
+      port: 465, // SSL port
+      secure: true, // true for SSL
+      auth: {
+        user: process.env.ZOHO_EMAIL, // e.g., info@yourdomain.com
+        pass: process.env.ZOHO_APP_PASSWORD, // Zoho app password
+      },
+    });
 
-  await transporter.sendMail({
-    from: "info@gemorastudio.com",
-    to: email,
-    subject: "Account Verification - OTP",
-    html: htmlTemplate(name, otp),
-  });
+    await transporter.sendMail({
+      from: '"Gemora Studio" <info@gemorastudio.com>',
+      to: email,
+      subject: "Account Verification - OTP",
+      html: htmlTemplate(name, otp),
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };

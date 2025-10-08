@@ -52,7 +52,8 @@ export const signUp = async (req, res) => {
 
     return res.ok({
       status: 200,
-      message: "OTP sent to your email",
+      message:
+        "OTP has been sent to your email. Please check your inbox or spam folder",
     });
   } catch (error) {
     return res.failureResponse();
@@ -144,7 +145,10 @@ export const resendOtp = async (req, res) => {
     // Send OTP email
     await sendOtpEmail(user.email, user.name, otp);
 
-    return res.ok({ message: "OTP resent successfully" });
+    return res.ok({
+      message:
+        "We’ve resent the OTP! Check your inbox — and don’t forget to look in your spam folder",
+    });
   } catch (err) {
     return res.failureResponse();
   }
@@ -166,11 +170,11 @@ export const login = async (req, res) => {
             message: "User is blocked, please contact admin",
           });
         }
-        if (!user.isVerified) {
-          return res.badRequest({
-            message: "User not verified, please verify your email",
-          });
-        }
+        // if (!user.isVerified) {
+        //   return res.badRequest({
+        //     message: "User not verified, please verify your email",
+        //   });
+        // }
 
         return res.ok({
           data: { data: user, refreshToken, token },
@@ -235,6 +239,72 @@ export const getUserDetails = async (req, res) => {
     });
   } catch (error) {
     console.error("Get User Details Error:", error);
+    return res.failureResponse();
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { name, phoneNo } = req.body;
+
+    if (!name || !phoneNo) {
+      return res.badRequest({
+        status: 400,
+        message: "Name and Phone number are required.",
+      });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.badRequest({
+        status: 404,
+        message: "User not found.",
+      });
+    }
+
+    user.name = name;
+    user.phoneNo = phoneNo;
+    await user.save();
+
+    return res.ok({
+      status: 200,
+      message: "Profile updated successfully.",
+      data: user,
+    });
+  } catch (error) {
+    return res.failureResponse();
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { password } = req.body;
+
+    if (!password) {
+      return res.badRequest({
+        status: 400,
+        message: "New password is required.",
+      });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.badRequest({
+        status: 404,
+        message: "User not found.",
+      });
+    }
+
+    user.password = await bcrypt.hash(password, 8);
+    await user.save();
+
+    return res.ok({
+      status: 200,
+      message: "Password changed successfully.",
+    });
+  } catch (error) {
     return res.failureResponse();
   }
 };
