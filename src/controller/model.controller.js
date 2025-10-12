@@ -322,6 +322,12 @@ export const updateById = async (req, res) => {
     if (updateData.camera) {
       updateData["modelConfig.camera"] = JSON.parse(updateData.camera);
     }
+    if (updateData.position) {
+      updateData["modelConfig.position"] = JSON.parse(updateData.position);
+    }
+    if (updateData.rotation) {
+      updateData["modelConfig.rotation"] = JSON.parse(updateData.rotation);
+    }
     if (updateData.sceneConfig) {
       updateData.sceneConfig = JSON.parse(updateData.sceneConfig);
     }
@@ -332,6 +338,8 @@ export const updateById = async (req, res) => {
       "modelConfig",
       "materialConfig",
       "modelConfig.camera",
+      "modelConfig.position",
+      "modelConfig.rotation",
       "sceneConfig",
       "name",
       "type",
