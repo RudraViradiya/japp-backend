@@ -40,7 +40,8 @@ export const create = async (req, res) => {
     if (model) {
       return res.badRequest({
         status: 404,
-        message: "Model with same sku already exists",
+        message:
+          "Model with same sku already exists, please try with different sku",
       });
     }
 

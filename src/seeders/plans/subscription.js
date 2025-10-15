@@ -61,11 +61,11 @@ export const DEFAULT_PLAN = {
     customAssets: 2,
     imageCredit: 30,
     videoCredit: 12,
-    aiImageCredit: 3,
+    aiImageCredit: 30,
     maxVariant: 2,
-    imageResolution: "2k",
-    videoResolution: "2k",
-    displayQuality: "medium",
+    imageResolution: "4k",
+    videoResolution: "4k",
+    displayQuality: "ultra high",
     embed: true,
     multiImageFromCAD: true,
     customVideoAngle: true, // used later
@@ -73,7 +73,7 @@ export const DEFAULT_PLAN = {
     playground: false, // used later
   },
   prices: generatePrices(0),
-  durationInDays: 5,
+  durationInDays: 30,
   weight: 10,
 };
 
