@@ -39,7 +39,7 @@ export const create = async (req, res) => {
     const model = await ModelModel.findOne({ sku: data.sku });
     if (model) {
       return res.badRequest({
-        status: 404,
+        status: 400,
         message:
           "Model with same sku already exists, please try with different sku",
       });
