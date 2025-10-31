@@ -10,6 +10,7 @@ import paymentRouter from "./payment.routes.js";
 import planRouter from "./plan.routes.js";
 import webHookRouter from "./webhook.routes.js";
 import contactRouter from "./contact.routes.js";
+import aiShootTemplateRouter from "./aiShootTemplate.routes.js";
 
 const router = express.Router();
 
@@ -18,6 +19,8 @@ router.use("/auth", authRouter);
 router.use("/model", modelRouter);
 
 router.use("/material", materialRouter);
+
+router.use("/aiShootTemplate", aiShootTemplateRouter);
 
 router.use("/pose", poseRouter);
 

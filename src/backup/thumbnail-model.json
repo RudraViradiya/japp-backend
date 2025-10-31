@@ -1,0 +1,296 @@
+{
+  "_id": {
+    "$oid": "68e614cfe45939f461a78dc7"
+  },
+  "name": "Diamond Ring",
+  "sku": "GSDR01",
+  "userId": {
+    "$oid": "68d593980b48deac5f0df0c6"
+  },
+  "type": "ring",
+  "note": "",
+  "modelUrl": "68d593980b48deac5f0df0c6/68e614cfe45939f461a78dc7/main.glb",
+  "thumbnail": "68d593980b48deac5f0df0c6/68e614cfe45939f461a78dc7/thumbnail.jpeg",
+  "modelConfig": {
+    "defaultMaterials": {
+      "Metal 01": {
+        "_id": "68caf255690aaa70cd4f818c",
+        "type": "metal_rosegold_polished",
+        "category": "metal_material",
+        "name": "2 metal rosegold polished",
+        "thumbnail": "assets/thumbnails/2_metal_rosegold_polished.png",
+        "value": "assets/metal_material/2_metal_rosegold_polished.pmat",
+        "userId": null,
+        "weight": 10,
+        "__v": 0,
+        "createdAt": "2025-09-17T17:39:33.951Z",
+        "updatedAt": "2025-09-17T17:39:33.951Z"
+      },
+      "Gem 03": {
+        "_id": "68caf255690aaa70cd4f814d",
+        "type": "sapphire",
+        "category": "gem_material",
+        "name": "1 gem sapphire 1",
+        "thumbnail": "assets/thumbnails/1_gem_sapphire_1.png",
+        "value": "assets/gem_material/1_gem_sapphire_1.dmat",
+        "userId": null,
+        "weight": 10,
+        "__v": 0,
+        "createdAt": "2025-09-17T17:39:33.949Z",
+        "updatedAt": "2025-09-17T17:39:33.949Z"
+      }
+    },
+    "materialProps": {
+      "Metal 01": {
+        "visible": true
+      },
+      "Gem 03": {
+        "visible": true
+      }
+    },
+    "materials": {
+      "Metal 01": [
+        {
+          "_id": "68caf255690aaa70cd4f818c",
+          "type": "metal_rosegold_polished",
+          "category": "metal_material",
+          "name": "2 metal rosegold polished",
+          "thumbnail": "assets/thumbnails/2_metal_rosegold_polished.png",
+          "value": "assets/metal_material/2_metal_rosegold_polished.pmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.951Z",
+          "updatedAt": "2025-09-17T17:39:33.951Z"
+        },
+        {
+          "_id": "68caf255690aaa70cd4f8180",
+          "type": "metal_gold_polished",
+          "category": "metal_material",
+          "name": "1 metal gold polished",
+          "thumbnail": "assets/thumbnails/1_metal_gold_polished.png",
+          "value": "assets/metal_material/1_metal_gold_polished.pmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.950Z",
+          "updatedAt": "2025-09-17T17:39:33.950Z"
+        },
+        {
+          "_id": "68caf255690aaa70cd4f818e",
+          "type": "metal_silver_polished",
+          "category": "metal_material",
+          "name": "2 metal silver polished",
+          "thumbnail": "assets/thumbnails/2_metal_silver_polished.png",
+          "value": "assets/metal_material/2_metal_silver_polished.pmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.951Z",
+          "updatedAt": "2025-09-17T17:39:33.951Z"
+        }
+      ],
+      "Gem 03": [
+        {
+          "_id": "68caf255690aaa70cd4f8147",
+          "type": "diamond_color",
+          "category": "gem_material",
+          "name": "1 gem diamond white 1",
+          "thumbnail": "assets/thumbnails/1_gem_diamond_white_1.png",
+          "value": "assets/gem_material/1_gem_diamond_white_1.dmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.949Z",
+          "updatedAt": "2025-09-17T17:39:33.949Z"
+        },
+        {
+          "_id": "68caf255690aaa70cd4f814d",
+          "type": "sapphire",
+          "category": "gem_material",
+          "name": "1 gem sapphire 1",
+          "thumbnail": "assets/thumbnails/1_gem_sapphire_1.png",
+          "value": "assets/gem_material/1_gem_sapphire_1.dmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.949Z",
+          "updatedAt": "2025-09-17T17:39:33.949Z"
+        },
+        {
+          "_id": "68caf255690aaa70cd4f8151",
+          "type": "diamond_color",
+          "category": "gem_material",
+          "name": "2 gem diamond blue 2",
+          "thumbnail": "assets/thumbnails/2_gem_diamond_blue_2.png",
+          "value": "assets/gem_material/2_gem_diamond_blue_2.dmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.950Z",
+          "updatedAt": "2025-09-17T17:39:33.950Z"
+        },
+        {
+          "_id": "68caf255690aaa70cd4f814b",
+          "type": "ruby",
+          "category": "gem_material",
+          "name": "1 gem ruby 1",
+          "thumbnail": "assets/thumbnails/1_gem_ruby_1.png",
+          "value": "assets/gem_material/1_gem_ruby_1.dmat",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.949Z",
+          "updatedAt": "2025-09-17T17:39:33.949Z"
+        }
+      ]
+    },
+    "scenes": {
+      "ENVIRONMENT-METAL": [],
+      "ENVIRONMENT-GEM": [],
+      "VJSON": [
+        {
+          "_id": "68caf255690aaa70cd4f831a",
+          "type": "scene",
+          "category": "scene",
+          "name": "ss 001",
+          "thumbnail": "assets/thumbnails/ss_001.png",
+          "value": "assets/scene/ss_001.vjson",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.956Z",
+          "updatedAt": "2025-09-17T17:39:33.956Z"
+        }
+      ],
+      "GROUND": [
+        {
+          "_id": "68caf255690aaa70cd4f82bf",
+          "type": "ground",
+          "category": "ground",
+          "name": "ground shadow reflection",
+          "thumbnail": "assets/thumbnails/ground_shadow_reflection.png",
+          "value": "assets/ground/ground_shadow_reflection.json",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.955Z",
+          "updatedAt": "2025-09-17T17:39:33.955Z"
+        }
+      ],
+      "BACKGROUND": [
+        {
+          "_id": "68caf255690aaa70cd4f82a3",
+          "type": "background",
+          "category": "background",
+          "name": "bg linear beige",
+          "thumbnail": "assets/thumbnails/bg_linear_beige.png",
+          "value": "assets/background/bg_linear_beige.svg",
+          "userId": null,
+          "weight": 10,
+          "__v": 0,
+          "createdAt": "2025-09-17T17:39:33.954Z",
+          "updatedAt": "2025-09-17T17:39:33.954Z"
+        }
+      ],
+      "ADVANCE-SETTING": [
+        {
+          "enable": true,
+          "type": "SimpleBackgroundEnvUiPlugin2",
+          "tonemapGround": true,
+          "tonemapBackground": false,
+          "sceneEnvironmentRotation": 0,
+          "sceneEnvironmentIntensity": 1,
+          "sceneEnvironmentFixedDirection": true
+        }
+      ]
+    },
+    "camera": {
+      "camControls": {
+        "type": "OrbitControls",
+        "dollyZoom": false,
+        "zoomToCursor": false,
+        "enableDamping": true,
+        "dampingFactor": 0.08,
+        "autoRotate": false,
+        "autoRotateSpeed": 2,
+        "enableZoom": true,
+        "zoomSpeed": 0.15,
+        "maxZoomSpeed": 0.2,
+        "enableRotate": true,
+        "rotateSpeed": 2,
+        "enablePan": true,
+        "panSpeed": 1,
+        "autoPushTarget": false,
+        "autoPullTarget": false,
+        "minDistance": 0.35,
+        "maxDistance": 1000,
+        "minZoom": 0.01,
+        "maxZoom": 1000,
+        "minPolarAngle": 0,
+        "maxPolarAngle": 3.141592653589793,
+        "minAzimuthAngle": -1000000,
+        "maxAzimuthAngle": 1000000,
+        "clampMin": {
+          "x": -1000000,
+          "y": -1000000,
+          "z": -1000000,
+          "isVector3": true
+        },
+        "clampMax": {
+          "x": 1000000,
+          "y": 1000000,
+          "z": 1000000,
+          "isVector3": true
+        },
+        "screenSpacePanning": true,
+        "keyPanSpeed": 7
+      },
+      "camOptions": {
+        "type": "PerspectiveCamera",
+        "aspect": "auto",
+        "focus": 10,
+        "fov": 25,
+        "zoom": 1,
+        "frustumSize": 1,
+        "top": 1,
+        "bottom": -1,
+        "left": -1,
+        "right": 1,
+        "controlsMode": "orbit",
+        "controlsEnabled": true
+      },
+      "position": {
+        "x": 2.564460904335979,
+        "y": 6.754388401664645,
+        "z": 6.913882960362416,
+        "isVector3": true
+      },
+      "target": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "isVector3": true
+      }
+    },
+    "position": {
+      "x": 0,
+      "y": -0.3333650101262013,
+      "z": -2.0957594251431022e-16
+    },
+    "rotation": {
+      "isEuler": true,
+      "_x": -1.5707963267948963,
+      "_y": 0,
+      "_z": 0,
+      "_order": "XYZ"
+    }
+  },
+  "createdAt": {
+    "$date": "2025-10-08T07:37:52.916Z"
+  },
+  "updatedAt": {
+    "$date": "2025-10-30T17:16:48.468Z"
+  },
+  "__v": 0
+}
