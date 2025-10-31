@@ -29,6 +29,6 @@ const schema = new Schema(
 
 schema.plugin(mongoosePaginate);
 
-const VideoAngleModel = mongoose.model("videoAngle", schema);
+const VideoAngleModel = mongoose.model("video-angle", schema);
 
 export default VideoAngleModel;

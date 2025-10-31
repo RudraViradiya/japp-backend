@@ -28,6 +28,6 @@ const schema = new Schema(
 
 schema.plugin(mongoosePaginate);
 
-const MediaErrorModel = mongoose.model("mediaError", schema);
+const MediaErrorModel = mongoose.model("media-error", schema);
 
 export default MediaErrorModel;
