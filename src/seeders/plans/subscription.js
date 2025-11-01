@@ -51,7 +51,7 @@ export const EMPTY_PLAN = {
 
 export const DEFAULT_PLAN = {
   name: "Free Trail",
-  planId: "",
+  planId: "FREE_PLAN",
   description: "Free trail plan with limited features",
   type: "order",
   features: {

@@ -10,6 +10,7 @@ import paymentRouter from "./payment.routes.js";
 import planRouter from "./plan.routes.js";
 import webHookRouter from "./webhook.routes.js";
 import contactRouter from "./contact.routes.js";
+import adminRouter from "./admin.routes.js";
 import aiShootTemplateRouter from "./aiShootTemplate.routes.js";
 
 const router = express.Router();
@@ -37,5 +38,7 @@ router.use("/subscription", planRouter);
 router.use("/webhook", webHookRouter);
 
 router.use("/contact", contactRouter);
+
+router.use("/admin", adminRouter);
 
 export default router;
