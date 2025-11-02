@@ -12,6 +12,7 @@ import webHookRouter from "./webhook.routes.js";
 import contactRouter from "./contact.routes.js";
 import adminRouter from "./admin.routes.js";
 import aiShootTemplateRouter from "./aiShootTemplate.routes.js";
+import catalogTemplateRouter from "./catalogTemplate.routes.js";
 
 const router = express.Router();
 
@@ -40,5 +41,7 @@ router.use("/webhook", webHookRouter);
 router.use("/contact", contactRouter);
 
 router.use("/admin", adminRouter);
+
+router.use("/catalogTemplate", catalogTemplateRouter);
 
 export default router;

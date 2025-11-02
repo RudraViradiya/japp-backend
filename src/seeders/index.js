@@ -12,12 +12,14 @@ import scene from "./scenes/scene.js";
 import pose from "./pose/pose.js";
 import videoAngles from "./videoAngles/videoAngles.js";
 import aiShootTemplate from "./aiShootTemplate/aiShootTemplate.js";
+import catalogTemplates from "./catalogTemplate/baseTemplates.js";
 import MaterialModel from "../model/material.model.js";
 import "../db/conn.js"; // Import database connection
 import TopUpModel from "../model/topUp.model.js";
 import PoseModel from "../model/pose.model.js";
 import VideoAngleModel from "../model/videoAngle.model.js";
 import AiShootTemplate from "../model/aiShootTemplate.model.js";
+import CatalogTemplateModel from "../model/catalogTemplate.model.js";
 
 const allMaterials = [
   ...gemMaterials,
@@ -68,6 +70,27 @@ async function run() {
     // console.log(
     //   `✅ - Successfully inserted ${aiShootTemplate.length} Ai Shoot Templates`
     // );
+
+    console.log("🚀 - Seeding Catalog Templates");
+    console.log(
+      `📊 - Total Catalog Templates to insert: ${catalogTemplates.length}`
+    );
+    
+    // Check if templates already exist
+    const existingCount = await CatalogTemplateModel.countDocuments({
+      isBaseTemplate: true,
+    });
+    
+    if (existingCount === 0) {
+      await CatalogTemplateModel.insertMany(catalogTemplates);
+      console.log(
+        `✅ - Successfully inserted ${catalogTemplates.length} Catalog Templates`
+      );
+    } else {
+      console.log(
+        `ℹ️ - ${existingCount} base templates already exist, skipping insertion`
+      );
+    }
 
     console.log("🚀 - Seeding Completed");
 
