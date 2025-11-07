@@ -95,6 +95,8 @@ schema.method("toJSON", function () {
 
 schema.plugin(mongoosePaginate);
 
+schema.index({ userId: 1, type: 1 }, { unique: true });
+
 const UserModel = mongoose.model("user", schema);
 
 export default UserModel;

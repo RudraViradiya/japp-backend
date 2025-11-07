@@ -181,11 +181,6 @@ export const login = async (req, res) => {
         //     message: "User not verified, please verify your email",
         //   });
         // }
-        await LogModel.create({
-          type: "USER_LOGIN",
-          userId: user._id,
-          note: "User Login",
-        });
         return res.ok({
           data: { data: user, refreshToken, token },
           message: "User login Successfully",
@@ -244,18 +239,17 @@ export const getUserDetails = async (req, res) => {
     }
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayKey = today.toISOString().split("T")[0];
 
     await LogModel.updateOne(
-      { userId: user._id, type: "USER_ACTIVATED", "data.date": today },
+      { userId: user._id, type: "USER_ACTIVATED" },
       {
         $setOnInsert: {
           type: "USER_ACTIVATED",
           userId: user._id,
           note: "User opened the app",
-          "data.date": today, // set nested field directly
         },
-        $inc: { "data.counter": 1 },
+        $inc: { [`data.${todayKey}`]: 1 }, // dynamic key increment
       },
       { upsert: true }
     );

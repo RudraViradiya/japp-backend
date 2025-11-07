@@ -9,11 +9,11 @@ const { Schema } = mongoose;
 const schema = new Schema(
   {
     type: { type: String },
-    
+
     userId: { ref: "user", required: true, type: mongoose.Types.ObjectId },
-    
+
     data: { type: Object },
-    
+
     note: { type: String },
 
     createdAt: { type: Date },
@@ -29,6 +29,11 @@ const schema = new Schema(
 );
 
 schema.plugin(mongoosePaginate);
+
+schema.index({ email: 1 });
+schema.index({ isBlocked: 1 });
+schema.index({ isVerified: 1 });
+schema.index({ createdAt: -1 });
 
 const LogModel = mongoose.model("logs", schema);
 
