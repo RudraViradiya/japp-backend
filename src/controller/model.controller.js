@@ -4,6 +4,7 @@ import UserModel from "../model/user.model.js";
 import { uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
+import LogModel from "../model/logs.model.js";
 
 export const create = async (req, res) => {
   const data = req.body;
@@ -87,6 +88,11 @@ export const create = async (req, res) => {
       { $inc: { "config.modelCredit": -1 } }
     );
 
+    await LogModel.create({
+      type: "MODEL_CREATED",
+      userId: req.userId,
+      note: "New Model Created",
+    });
     return res.ok({
       status: 200,
       data: entry,

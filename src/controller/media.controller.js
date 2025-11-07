@@ -1,3 +1,4 @@
+import LogModel from "../model/logs.model.js";
 import MediaErrorModel from "../model/mediaError.model.js";
 import UserModel from "../model/user.model.js";
 
@@ -80,6 +81,9 @@ export const validateMedia = async (req, res) => {
     }
 
     const user = await UserModel.findById(req.userId);
+
+    let note = "";
+    let logType = "";
     if (type === "IMAGE_AI") {
       if (user.config.aiImageCredit < count) {
         return res.badRequest({
@@ -92,6 +96,8 @@ export const validateMedia = async (req, res) => {
         { _id: req.userId },
         { $inc: { "config.aiImageCredit": -count } }
       );
+      logType = "AI_IMAGE_CREATED";
+      note = "AI Image Created";
     }
     if (type === "IMAGE") {
       if (user.config.imageCredit < count) {
@@ -104,6 +110,9 @@ export const validateMedia = async (req, res) => {
         { _id: req.userId },
         { $inc: { "config.imageCredit": -count } }
       );
+
+      note = "Image Created";
+      logType = count === 1 ? "IMAGE_CREATED" : "MULTI_IMAGES_CREATED";
     }
     if (type === "VIDEO") {
       if (user.config.videoCredit < count) {
@@ -116,7 +125,16 @@ export const validateMedia = async (req, res) => {
         { _id: req.userId },
         { $inc: { "config.videoCredit": -count } }
       );
+
+      note = "Video Created";
+      logType = count === 1 ? "VIDEO_CREATED" : "MULTI_VIDEO_CREATED";
     }
+    await LogModel.create({
+      data: { count },
+      note,
+      type: logType,
+      userId: req.userId,
+    });
     return res.ok({
       status: 200,
       data: {},

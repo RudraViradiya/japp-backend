@@ -37,6 +37,8 @@ const schema = new Schema(
 
     config: { type: Object },
 
+    details: { type: Object },
+
     modelCredit: { type: Number },
 
     isVerified: { type: Boolean },

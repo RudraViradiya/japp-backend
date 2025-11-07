@@ -5,6 +5,7 @@ import { generateToken } from "../utils/common.js";
 import bcrypt from "bcrypt";
 import { sendOtpEmail } from "../utils/emailProvider.js";
 import { DEFAULT_PLAN, EMPTY_PLAN } from "../seeders/plans/subscription.js";
+import LogModel from "../model/logs.model.js";
 
 export const signUp = async (req, res) => {
   const data = req.body;
@@ -102,6 +103,11 @@ export const verifyOtp = async (req, res) => {
     // Generate tokens only now
     const { token, refreshToken } = await generateToken(user._id);
 
+    await LogModel.create({
+      type: "USER_CREATED",
+      userId: user._id,
+      note: "New User Created",
+    });
     return res.ok({
       status: 200,
       data: { data: user, token, refreshToken },
@@ -175,7 +181,11 @@ export const login = async (req, res) => {
         //     message: "User not verified, please verify your email",
         //   });
         // }
-
+        await LogModel.create({
+          type: "USER_LOGIN",
+          userId: user._id,
+          note: "User Login",
+        });
         return res.ok({
           data: { data: user, refreshToken, token },
           message: "User login Successfully",
@@ -233,6 +243,22 @@ export const getUserDetails = async (req, res) => {
       }
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await LogModel.updateOne(
+      { userId: user._id, type: "USER_ACTIVATED", "data.date": today },
+      {
+        $setOnInsert: {
+          type: "USER_ACTIVATED",
+          userId: user._id,
+          note: "User opened the app",
+          "data.date": today, // set nested field directly
+        },
+        $inc: { "data.counter": 1 },
+      },
+      { upsert: true }
+    );
     return res.ok({
       data: user,
       message: "User details fetched successfully",

@@ -6,6 +6,7 @@ import UserModel from "../model/user.model.js";
 import axios from "axios";
 import { EMPTY_PLAN } from "../seeders/plans/subscription.js";
 import { start } from "repl";
+import LogModel from "../model/logs.model.js";
 
 export const razorpayWebhook = async (req, res) => {
   try {
@@ -41,7 +42,12 @@ export const razorpayWebhook = async (req, res) => {
           { status: "success", payload },
           { new: true }
         );
-
+        await LogModel.create({
+          userId,
+          type: "PLAN_PURCHASED",
+          note: "New Plan purchased",
+          data: payload,
+        });
         if (planType === "MAIN_PLAN") {
           const plan = await PlanModel.findOne({
             planId: payload.notes.planId,
