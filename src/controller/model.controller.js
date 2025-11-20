@@ -237,6 +237,85 @@ export const getByIdEmbed = async (req, res) => {
   }
 };
 
+export const getByIdEmbedLink = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.badRequest({
+        status: 400,
+        message: "SKU ID is required",
+      });
+    }
+
+    const model = await ModelModel.findOne({ sku: id });
+
+    if (!model) {
+      return res.notFound({
+        status: 404,
+        message: "Model not found",
+      });
+    }
+
+    const user = await UserModel.findOne(model.userId);
+
+    if (!user?.config?.embed) {
+      return res.badRequest({
+        status: 400,
+        message: "Embed is disabled for this user",
+      });
+    }
+
+    const title = model.name || "Gemora Studio";
+    const image =
+      `https://pub-8b94fd0147ef46fb9a43d11689c7b6c3.r2.dev/${model.thumbnail}` ||
+      "https://www.gemorastudio.com/preview.png";
+    const description = model.type;
+
+    const finalHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${title}</title>
+
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="${title}" />
+        <meta property="og:description" content="${description}" />
+        <meta property="og:image" content="${image}" />
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="${title}">
+        <meta name="twitter:image" content="${image}">
+      </head>
+      <body>
+        Redirecting...
+        <script>
+          window.location.href = "https://www.gemorastudio.com/embed/${id}";
+        </script>
+      </body>
+    </html>
+  `;
+
+    res.setHeader("Content-Type", "text/html");
+    res.send(finalHtml);
+  } catch (error) {
+    // Handle invalid ObjectId format
+    if (error.name === "CastError") {
+      return res.badRequest({
+        status: 400,
+        message: "Invalid model ID format",
+      });
+    }
+
+    return res.failureResponse();
+  }
+};
+
 export const deleteById = async (req, res) => {
   try {
     const { id } = req.params;

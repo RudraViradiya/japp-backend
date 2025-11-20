@@ -6,6 +6,7 @@ import {
   getAllByUser,
   getById,
   getByIdEmbed,
+  getByIdEmbedLink,
   updateById,
   updateConfigById,
 } from "../controller/model.controller.js";
@@ -30,6 +31,8 @@ router.get("/", tokenValidator, getAllByUser);
 router.get("/:id", tokenValidator, getById);
 
 router.get("/embed/:id", getByIdEmbed);
+
+router.get("/share/:id", getByIdEmbedLink);
 
 router.put(
   "/:id",
