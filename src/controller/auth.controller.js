@@ -55,8 +55,7 @@ export const signUp = async (req, res) => {
 
     return res.ok({
       status: 200,
-      message:
-        "OTP has been sent to your email. Please check your inbox or spam folder",
+      message: "OTP has been sent to your email. Please check your inbox",
     });
   } catch (error) {
     return res.failureResponse();
@@ -189,8 +188,7 @@ export const resendOtp = async (req, res) => {
     await sendOtpEmail(user.email, user.name, otp);
 
     return res.ok({
-      message:
-        "We’ve sent the OTP! Check your inbox — and don’t forget to look in your spam folder",
+      message: "We’ve sent the OTP! Check your inbox",
     });
   } catch (err) {
     return res.failureResponse();
@@ -230,8 +228,7 @@ export const sendResetPasswordOtp = async (req, res) => {
     await forgotPasswordEmail(user.email, user.name, otp);
 
     return res.ok({
-      message:
-        "We’ve resent the OTP! Check your inbox — and don’t forget to look in your spam folder",
+      message: "OTP has been sent to your email. Please check your inbox",
     });
   } catch (err) {
     return res.failureResponse();
