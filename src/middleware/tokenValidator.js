@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import jwt from "jsonwebtoken";
+import UserTokenModel from "../model/userToken.model.js";
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -37,20 +38,37 @@ const checkTokenValidity = async (token) =>
   });
 
 const tokenValidator = async (req, res, next) => {
-  const token = req.header("authorization");
+  try {
+    const rawToken = req.header("authorization");
 
-  if (!token) {
-    return res.unAuthorizedRequest({ message: "Token Not Found...." });
+    if (!rawToken) {
+      return res.unAuthorizedRequest({ message: "Token Not Found..." });
+    }
+
+    const token = rawToken.replace("Bearer ", "").trim();
+
+    const userId = await checkTokenValidity(token);
+    if (!userId) {
+      return res.unAuthorizedRequest({ message: "Invalid Token" });
+    }
+
+    const tokenDoc = await UserTokenModel.findOne({
+      userId,
+      tokens: token,
+    });
+
+    if (!tokenDoc) {
+      return res.unAuthorizedRequest({
+        message: "Token Expired",
+      });
+    }
+
+    req.userId = userId;
+
+    next();
+  } catch (err) {
+    return res.unAuthorizedRequest({ message: err?.message || "Unauthorized" });
   }
-
-  checkTokenValidity(token.replace("Bearer ", ""))
-    .then(async (result) => {
-      req.userId = result;
-      next();
-    })
-    .catch((err) => res.unAuthorizedRequest({ message: err }));
-
-  return undefined;
 };
 
 export default tokenValidator;

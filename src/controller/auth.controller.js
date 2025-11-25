@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import { sendOtpEmail } from "../utils/emailProvider.js";
 import { DEFAULT_PLAN, EMPTY_PLAN } from "../seeders/plans/subscription.js";
 import LogModel from "../model/logs.model.js";
+import UserTokenModel from "../model/userToken.model.js";
 
 export const signUp = async (req, res) => {
   const data = req.body;
@@ -171,6 +172,24 @@ export const login = async (req, res) => {
       if (validPass) {
         const { token, refreshToken } = await generateToken(user._id);
 
+        const maxTokens = user.usersAllowed;
+
+        let tokenDoc = await UserTokenModel.findOne({ userId: user._id });
+
+        if (!tokenDoc) {
+          tokenDoc = await UserTokenModel.create({
+            userId: user._id,
+            tokens: [token],
+          });
+        } else {
+          if (tokenDoc.tokens.length >= maxTokens) {
+            tokenDoc.tokens.shift();
+          }
+
+          tokenDoc.tokens.push(token);
+
+          await tokenDoc.save();
+        }
         if (user.isBlocked) {
           return res.badRequest({
             message: "User is blocked, please contact admin",

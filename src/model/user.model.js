@@ -55,6 +55,12 @@ const schema = new Schema(
     createdAt: { type: Date },
 
     updatedAt: { type: Date },
+
+    usersAllowed: { type: Number, default: 1 },
+
+    referralCode: { type: String, default: "" },
+
+    userReferralCode: { type: String, default: "" },
   },
   {
     timestamps: {
