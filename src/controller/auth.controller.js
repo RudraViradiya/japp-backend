@@ -3,10 +3,11 @@ import validation from "../utils/validateRequest.js";
 import authValidator from "../utils/validation/authValidator.js";
 import { generateToken } from "../utils/common.js";
 import bcrypt from "bcrypt";
-import { sendOtpEmail } from "../utils/emailProvider.js";
+import { forgotPasswordEmail, sendOtpEmail } from "../utils/emailProvider.js";
 import { DEFAULT_PLAN, EMPTY_PLAN } from "../seeders/plans/subscription.js";
 import LogModel from "../model/logs.model.js";
 import UserTokenModel from "../model/userToken.model.js";
+import { checkTokenValidity } from "../middleware/tokenValidator.js";
 
 export const signUp = async (req, res) => {
   const data = req.body;
@@ -119,6 +120,41 @@ export const verifyOtp = async (req, res) => {
   }
 };
 
+export const verifyResetOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.badRequest({ status: 404, message: "User not found" });
+    }
+
+    if (user.otp !== +otp) {
+      return res.badRequest({ status: 400, message: "Invalid OTP" });
+    }
+    if (Date.now() > user.otpExpires) {
+      return res.badRequest({ status: 400, message: "OTP Expired" });
+    }
+
+    // Mark verified
+    user.otp = undefined;
+    user.otpExpires = undefined;
+
+    await user.save();
+
+    // Generate tokens only now
+    const { token, refreshToken } = await generateToken(user._id);
+
+    return res.ok({
+      status: 200,
+      data: { isValid: true, token, refreshToken },
+      message: "Email verified successfully",
+    });
+  } catch (error) {
+    return res.failureResponse();
+  }
+};
+
 export const resendOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -151,6 +187,47 @@ export const resendOtp = async (req, res) => {
 
     // Send OTP email
     await sendOtpEmail(user.email, user.name, otp);
+
+    return res.ok({
+      message:
+        "We’ve sent the OTP! Check your inbox — and don’t forget to look in your spam folder",
+    });
+  } catch (err) {
+    return res.failureResponse();
+  }
+};
+
+export const sendResetPasswordOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.badRequest({ message: "Email is required" });
+    }
+
+    // Check if user exists
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.badRequest({ message: "User not found" });
+    }
+
+    if (!user.isVerified) {
+      return res.badRequest({ message: "User is not verified" });
+    }
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+    await UserModel.findOneAndUpdate(
+      { email },
+      { otp, otpExpires },
+      { new: true }
+    );
+
+    // Send OTP email
+    await forgotPasswordEmail(user.email, user.name, otp);
 
     return res.ok({
       message:
@@ -344,6 +421,62 @@ export const changePassword = async (req, res) => {
       message: "Password changed successfully.",
     });
   } catch (error) {
+    return res.failureResponse();
+  }
+};
+
+export const updatePasswordFromToken = async (req, res) => {
+  try {
+    const { email, password, token } = req.body;
+
+    if (!token) {
+      return res.badRequest({
+        status: 400,
+        message: "token not found...",
+      });
+    }
+
+    const userId = await checkTokenValidity(token);
+
+    if (!userId) {
+      return res.badRequest({
+        status: 400,
+        message: "token not found...",
+      });
+    }
+
+    if (!password) {
+      return res.badRequest({
+        status: 400,
+        message: "New password is required.",
+      });
+    }
+
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.badRequest({
+        status: 404,
+        message: "User not found.",
+      });
+    }
+
+    if (user._id.toString() !== userId.toString()) {
+      return res.badRequest({
+        status: 400,
+        message: "Invalid token...",
+      });
+    }
+
+    user.password = await bcrypt.hash(password, 8);
+    await user.save();
+
+    return res.ok({
+      status: 200,
+      message: "Password updated successfully.",
+    });
+  } catch (error) {
+    console.log("🚀 - updatePasswordFromToken - error:", error);
     return res.failureResponse();
   }
 };

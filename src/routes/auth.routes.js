@@ -7,6 +7,9 @@ import {
   getUserDetails,
   updateProfile,
   changePassword,
+  sendResetPasswordOtp,
+  verifyResetOtp,
+  updatePasswordFromToken,
 } from "../controller/auth.controller.js";
 import tokenValidator from "../middleware/tokenValidator.js";
 
@@ -17,6 +20,12 @@ router.post("/login", login);
 router.post("/verifyOtp", verifyOtp);
 
 router.post("/resendOtp", resendOtp);
+
+router.post("/sendResetPasswordOtp", sendResetPasswordOtp);
+
+router.post("/verifyResetPasswordOtp", verifyResetOtp);
+
+router.post("/updatePasswordFromToken", updatePasswordFromToken);
 
 router.post("/signUp", signUp);
 

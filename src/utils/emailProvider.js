@@ -54,6 +54,67 @@ const htmlTemplate = (name, otp) => `
   </div>
 `;
 
+const forgotPasswordOtpTemplate = (name, otp) => `
+  <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #fdf9f6; padding: 30px;">
+    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0d6cc; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+      
+      <!-- Header -->
+      <div style="background: #c4a484; padding: 20px; text-align: center;">
+        <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 1px;">
+          💎 Gemora Studios
+        </h1>
+        <p style="margin: 5px 0 0; font-size: 14px; color: #fdf9f6; letter-spacing: 0.5px;">
+          Elevating Jewelry Visualization
+        </p>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 30px; color: #565254;">
+        <p style="font-size: 16px; margin-bottom: 15px;">
+          Hi <b>${name}</b>,
+        </p>
+
+        <p style="font-size: 16px; margin-bottom: 20px; line-height: 1.6;">
+          We received a request to reset your password for your <b>Gemora Studios</b> account.<br/>
+          Use the One-Time Password (OTP) below to proceed with resetting your password:
+        </p>
+
+        <!-- OTP Showcase -->
+        <div style="text-align: center; margin: 30px 0;">
+          <div style="
+            display: inline-block;
+            background: linear-gradient(135deg, #e0d6cc, #fdf9f6);
+            color: #565254;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            padding: 18px 35px;
+            border-radius: 10px;
+            border: 2px solid #c4a484;
+            box-shadow: 0 3px 12px rgba(196,164,132,0.3);
+          ">
+            ${otp}
+          </div>
+        </div>
+
+        <p style="font-size: 14px; margin-bottom: 20px; color: #777; text-align: center;">
+          ⏳ This OTP is valid for <b>5 minutes</b>. Do not share it with anyone for your security.
+        </p>
+
+        <p style="font-size: 14px; color: #777; text-align: center;">
+          If you did not request a password reset, please contact admin.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background: #e0d6cc; text-align: center; padding: 15px; font-size: 12px; color: #565254;">
+        <p style="margin: 0;">© ${new Date().getFullYear()} Gemora Studios. All rights reserved.</p>
+        <p style="margin: 5px 0 0;">Crafting Digital Luxury for Jewelry Enthusiasts</p>
+      </div>
+    </div>
+  </div>
+`;
+
 export const sendOtpEmail = async (email, name, otp) => {
   try {
     const transporter = nodemailer.createTransport({
@@ -71,6 +132,29 @@ export const sendOtpEmail = async (email, name, otp) => {
       to: email,
       subject: "Account Verification - OTP",
       html: htmlTemplate(name, otp),
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const forgotPasswordEmail = async (email, name, otp) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.zoho.in",
+      port: 465, // SSL port
+      secure: true, // true for SSL
+      auth: {
+        user: process.env.ZOHO_EMAIL, // e.g., info@yourdomain.com
+        pass: process.env.ZOHO_APP_PASSWORD, // Zoho app password
+      },
+    });
+
+    await transporter.sendMail({
+      from: '"Gemora Studio" <info@gemorastudio.com>',
+      to: email,
+      subject: "Your Password Reset OTP",
+      html: forgotPasswordOtpTemplate(name, otp),
     });
   } catch (err) {
     console.log(err);

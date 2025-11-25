@@ -19,7 +19,7 @@ export const fetchDecodedToken = (req) => {
   }
 };
 
-const checkTokenValidity = async (token) =>
+export const checkTokenValidity = async (token) =>
   new Promise((res, rej) => {
     (async () => {
       try {
