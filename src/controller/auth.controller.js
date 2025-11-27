@@ -8,6 +8,7 @@ import { DEFAULT_PLAN, EMPTY_PLAN } from "../seeders/plans/subscription.js";
 import LogModel from "../model/logs.model.js";
 import UserTokenModel from "../model/userToken.model.js";
 import { checkTokenValidity } from "../middleware/tokenValidator.js";
+import { getFolderSize } from "../storage/cloudflare.js";
 
 export const signUp = async (req, res) => {
   const data = req.body;
@@ -346,8 +347,13 @@ export const getUserDetails = async (req, res) => {
       },
       { upsert: true }
     );
+
+    const folderSize = await getFolderSize(user._id.toString());
+    const userObj = user.toObject();
+    userObj.storageUsed = folderSize;
+
     return res.ok({
-      data: user,
+      data: userObj,
       message: "User details fetched successfully",
     });
   } catch (error) {

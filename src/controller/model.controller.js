@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import ModelModel from "../model/model.model.js";
 import UserModel from "../model/user.model.js";
-import { uploadToR2 } from "../storage/cloudflare.js";
+import { deleteFolder, uploadToR2 } from "../storage/cloudflare.js";
 import validation from "../utils/validateRequest.js";
 import modelValidator from "../utils/validation/modelValidator.js";
 import LogModel from "../model/logs.model.js";
@@ -335,6 +335,8 @@ export const deleteById = async (req, res) => {
         message: "Model not found",
       });
     }
+
+    await deleteFolder(`${req.userId}/${id}`);
 
     return res.ok({
       status: 200,

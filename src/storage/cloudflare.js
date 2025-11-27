@@ -44,3 +44,98 @@ export async function fetchFromR2(key) {
 
   return await s3.send(command);
 }
+
+export async function getSubFolders(prefix) {
+  const normalizedPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
+  let subFolders = [];
+  let continuationToken = undefined;
+
+  do {
+    const command = new ListObjectsV2Command({
+      Bucket: R2_BUCKET,
+      Prefix: normalizedPrefix,
+      Delimiter: "/", // 👈 required for subfolder discovery
+      ContinuationToken: continuationToken,
+    });
+
+    const response = await s3.send(command);
+
+    if (response.CommonPrefixes) {
+      const folders = response.CommonPrefixes.map((p) => p.Prefix);
+      subFolders.push(...folders);
+    }
+
+    continuationToken = response.NextContinuationToken;
+  } while (continuationToken);
+
+  return subFolders;
+}
+
+// Helps to extract folders from the root directory
+export async function listRootFolders() {
+  const command = new ListObjectsV2Command({
+    Bucket: R2_BUCKET,
+    Delimiter: "/", // This groups objects by folder
+    Prefix: "", // Empty prefix means root level
+  });
+
+  const response = await s3.send(command);
+
+  // CommonPrefixes contains the folder names
+  const folders =
+    response.CommonPrefixes?.map(
+      (prefix) => prefix.Prefix.replace(/\/$/, "") // Remove trailing slash
+    ) || [];
+
+  return folders;
+}
+
+// Helper to delete folder from names (object keys)
+export async function deleteFolder(prefix) {
+  const listCmd = new ListObjectsV2Command({
+    Bucket: R2_BUCKET,
+    Prefix: prefix + "/",
+  });
+
+  const data = await s3.send(listCmd);
+
+  if (!data.Contents || data.Contents.length === 0) {
+    console.log(`⚠️ Nothing found under: ${prefix}/`);
+    return;
+  }
+
+  const objectsToDelete = data.Contents.map((obj) => ({ Key: obj.Key }));
+
+  const deleteCmd = new DeleteObjectsCommand({
+    Bucket: R2_BUCKET,
+    Delete: { Objects: objectsToDelete },
+  });
+
+  await s3.send(deleteCmd);
+}
+
+export async function getFolderSize(prefix) {
+  const fullPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
+  let totalSize = 0;
+  let continuationToken = undefined;
+
+  do {
+    const command = new ListObjectsV2Command({
+      Bucket: R2_BUCKET,
+      Prefix: fullPrefix,
+      ContinuationToken: continuationToken,
+    });
+
+    const response = await s3.send(command);
+
+    if (response.Contents) {
+      for (const obj of response.Contents) {
+        totalSize += obj.Size || 0;
+      }
+    }
+
+    continuationToken = response.NextContinuationToken;
+  } while (continuationToken);
+
+  return totalSize; // in bytes
+}
