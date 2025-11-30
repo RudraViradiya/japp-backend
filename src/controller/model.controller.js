@@ -268,7 +268,7 @@ export const getByIdEmbedLink = async (req, res) => {
 
     const title = model.name || "Gemora Studio";
     const image =
-      `https://pub-8b94fd0147ef46fb9a43d11689c7b6c3.r2.dev/${model.thumbnail}?t=${model.updatedAt}` ||
+      `https://pub-8b94fd0147ef46fb9a43d11689c7b6c3.r2.dev/${model.thumbnail}` ||
       "https://www.gemorastudio.com/preview.png";
     const type = model.type;
 
