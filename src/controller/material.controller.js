@@ -16,6 +16,7 @@ export const getMetalMaterials = async (req, res) => {
 
     const materials = await MaterialModel.find({
       category: "metal_material",
+      isActive: true,
       $or: [
         { userId: null },
         { userId: new mongoose.Types.ObjectId(req.userId) },
@@ -72,6 +73,7 @@ export const getGemMaterials = async (req, res) => {
 
     const materials = await MaterialModel.find({
       category: "gem_material",
+      isActive: true,
       $or: [
         { userId: null },
         { userId: new mongoose.Types.ObjectId(req.userId) },
@@ -126,6 +128,7 @@ export const getSceneMaterials = async (req, res) => {
 
     const materials = await MaterialModel.find({
       category: { $nin: ["gem_material", "metal_material"] },
+      isActive: true,
     });
     return res.ok({
       status: 200,

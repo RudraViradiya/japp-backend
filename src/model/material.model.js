@@ -21,6 +21,8 @@ const schema = new Schema(
 
     weight: { type: Number },
 
+    isActive: { type: Boolean, default: true },
+
     createdAt: { type: Date },
 
     updatedAt: { type: Date },
