@@ -32,8 +32,6 @@ router.get("/:id", tokenValidator, getById);
 
 router.get("/embed/:id", getByIdEmbed);
 
-router.get("/share/:id", getByIdEmbedLink);
-
 router.put(
   "/:id",
   tokenValidator,

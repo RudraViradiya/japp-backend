@@ -11,6 +11,7 @@ import planRouter from "./plan.routes.js";
 import webHookRouter from "./webhook.routes.js";
 import contactRouter from "./contact.routes.js";
 import adminRouter from "./admin.routes.js";
+import shareRoute from "./share.routes.js";
 import aiShootTemplateRouter from "./aiShootTemplate.routes.js";
 
 const router = express.Router();
@@ -40,5 +41,7 @@ router.use("/webhook", webHookRouter);
 router.use("/contact", contactRouter);
 
 router.use("/admin", adminRouter);
+
+router.use("/share", shareRoute);
 
 export default router;
