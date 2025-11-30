@@ -270,7 +270,7 @@ export const getByIdEmbedLink = async (req, res) => {
     const image =
       `https://pub-8b94fd0147ef46fb9a43d11689c7b6c3.r2.dev/${model.thumbnail}` ||
       "https://www.gemorastudio.com/preview.png";
-    const description = model.type;
+    const type = model.type;
 
     const finalHtml = `
     <!DOCTYPE html>
@@ -282,7 +282,7 @@ export const getByIdEmbedLink = async (req, res) => {
         <!-- Open Graph -->
         <meta property="og:type" content="website" />
         <meta property="og:title" content="${title}" />
-        <meta property="og:description" content="${description}" />
+        <meta property="og:description" content="Tap to explore the ${type} in 3D ✨" />
         <meta property="og:image" content="${image}" />
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
@@ -295,7 +295,7 @@ export const getByIdEmbedLink = async (req, res) => {
       <body>
         Redirecting...
         <script>
-          window.location.href = "https://www.gemorastudio.com/embed/${id}";
+          window.location.href = "https://smaller-florence-orientation-newspapers.trycloudflare.com/embed/${id}";
         </script>
       </body>
     </html>
