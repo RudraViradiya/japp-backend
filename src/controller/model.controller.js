@@ -18,7 +18,8 @@ export const create = async (req, res) => {
   try {
     const user = await UserModel.findOne({ _id: req.userId });
 
-    if (user.config.modelCredit <= 0) {
+    const modelCredit = user?.config?.modelCredit;
+    if (modelCredit !== null && modelCredit <= 0) {
       return res.badRequest({
         status: 400,
         message: "You do not have enough model credits to upload a model",
@@ -83,10 +84,11 @@ export const create = async (req, res) => {
     payload.thumbnail = thumbnailUrl;
     const entry = new ModelModel({ _id: modelId, ...payload });
     await entry.save();
-    await UserModel.updateOne(
-      { _id: req.userId },
-      { $inc: { "config.modelCredit": -1 } }
-    );
+    if (modelCredit !== null)
+      await UserModel.updateOne(
+        { _id: req.userId },
+        { $inc: { "config.modelCredit": -1 } }
+      );
 
     await LogModel.create({
       type: "MODEL_CREATED",

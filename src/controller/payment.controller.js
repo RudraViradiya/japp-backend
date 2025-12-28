@@ -5,6 +5,7 @@ import SubscriptionModel from "../model/subscription.model.js";
 import UserModel from "../model/user.model.js";
 import TransactionModel from "../model/transaction.model.js";
 import { type } from "os";
+import TopUpModel from "../model/topUp.model.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -193,13 +194,18 @@ export const createOrder = async (req, res) => {
 
 export const createTopUpOrder = async (req, res) => {
   try {
-    const { planId, currency, amount, type, count } = req.body;
+    const { planId, currency } = req.body;
 
     // Fetch user details
     const user = await UserModel.findById(req.userId);
 
     if (!user)
       return res.badRequest({ status: 400, message: "User not found" });
+
+    // Fetch plan details
+    const plan = await TopUpModel.findOne({ planId });
+    if (!plan)
+      return res.badRequest({ status: 400, message: "Plan not found" });
 
     // Fetch plan details
     // const plan = await PlanModel.findOne({ planId });
@@ -209,8 +215,11 @@ export const createTopUpOrder = async (req, res) => {
     // Razorpay order
 
     // const price = plan.prices.find((p) => p.currency === currency);
+
+    const price = plan.prices.find((p) => p.currency === currency);
+
     const order = await razorpay.orders.create({
-      amount: amount * 100, // convert to paise
+      amount: price.amount * 100, // convert to paise
       currency: currency,
       receipt: "txn_" + Date.now(),
       notes: { userId: req.userId, planId: planId },
@@ -222,7 +231,7 @@ export const createTopUpOrder = async (req, res) => {
       planId: planId,
       type: "TOP_UP_PLAN",
       orderId: order.id,
-      amount: amount,
+      amount: price.amount,
       currency: currency,
       status: "pending",
     });
@@ -242,10 +251,8 @@ export const createTopUpOrder = async (req, res) => {
         notes: {
           email: user.email,
           userId: req.userId,
-          planId: "Top Up",
           type: "TOP_UP_PLAN",
-          planType: type,
-          planCount: count,
+          planId: planId,
         },
         theme: { color: "#c4a484" },
       },

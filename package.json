@@ -8,7 +8,7 @@
     "start": "node -r dotenv/config index.js dotenv_config_path=.env.development.local dotenv_config_debug=true",
     "dev": "nodemon -r dotenv/config index.js dotenv_config_path=.env.development.local dotenv_config_debug=true",
     "seed": "node -r dotenv/config src/seeders/index.js dotenv_config_path=.env.development.local",
-    "migrate": "node -r dotenv/config src/migrations/add-isActive-material.js dotenv_config_path=.env.development.local",
+    "migrate": "node -r dotenv/config src/migrations/add-usersAllowed-referalCode.js dotenv_config_path=.env.development.local",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,6 +21,7 @@
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "joi": "^17.13.3",

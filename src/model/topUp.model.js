@@ -22,6 +22,8 @@ const featureSchema = new mongoose.Schema({
   videoCredit: { type: Number },
 
   aiImageCredit: { type: Number },
+
+  storageLimit: { type: Number },
 });
 
 const schema = new Schema(
@@ -34,7 +36,13 @@ const schema = new Schema(
 
     type: {
       type: String,
-      enum: ["aiImageCredit", "videoCredit", "imageCredit", "modelCredit"],
+      enum: [
+        "aiImageCredit",
+        "videoCredit",
+        "imageCredit",
+        "modelCredit",
+        "storageLimit",
+      ],
       required: true,
     },
 

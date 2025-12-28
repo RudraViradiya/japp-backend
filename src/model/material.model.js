@@ -17,7 +17,7 @@ const schema = new Schema(
 
     value: { type: String },
 
-    userId: { type: mongoose.Types.ObjectId },
+    userId: { type: mongoose.Types.ObjectId, ref: "user" },
 
     weight: { type: Number },
 

@@ -34,6 +34,8 @@ const schema = new Schema(
     city: { type: String },
 
     activePlans: [{ type: Object }],
+    
+    activeTopUps: [{ type: Object , default: [] }],
 
     config: { type: Object },
 

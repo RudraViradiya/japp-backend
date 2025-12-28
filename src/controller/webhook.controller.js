@@ -7,6 +7,9 @@ import axios from "axios";
 import { EMPTY_PLAN } from "../seeders/plans/subscription.js";
 import { start } from "repl";
 import LogModel from "../model/logs.model.js";
+import TopUpModel from "../model/topUp.model.js";
+import e from "express";
+import { addDays } from "date-fns";
 
 export const razorpayWebhook = async (req, res) => {
   try {
@@ -48,50 +51,72 @@ export const razorpayWebhook = async (req, res) => {
           note: "New Plan purchased",
           data: payload,
         });
+
+        const config = payload.notes;
+        const planId = config.planId;
+
+        const user = await UserModel.findById(userId);
+
         if (planType === "MAIN_PLAN") {
-          const plan = await PlanModel.findOne({
-            planId: payload.notes.planId,
-          });
+          const plan = await PlanModel.findOne({ planId });
 
-          const user = await UserModel.findById(userId);
+          const unlimitedPlanIndex = user.activePlans.findIndex(
+            (e) => e.type === "UNLIMITED"
+          );
 
-          if (user.activePlans.length > 1) {
-            const newConfig = [user.config, plan.features]
-              .sort((a, b) => a.weight - b.weight)
-              .reduce((acc, curr) => {
-                if (!acc) return curr;
-                // curr.modelCredit += acc?.modelCredit || 0;
-                return curr;
-              }, undefined);
+          const isUnlimitedPlan = plan.type === "UNLIMITED";
 
-            await UserModel.findByIdAndUpdate(userId, {
-              $push: {
-                activePlans: {
-                  ...plan,
-                  startDate: null,
-                  endDate: null,
-                  status: "active",
-                },
-              },
-              $set: { config: newConfig },
-            });
+          let startDate = new Date();
+          let endDate = null;
+
+          let newConfig = plan.features;
+
+          if (unlimitedPlanIndex !== -1 && isUnlimitedPlan) {
+            // if (plan.durationInDays) {
+            //   endDate = addDays(
+            //     new Date(user.activePlans[unlimitedPlanIndex].endDate),
+            //     plan.durationInDays
+            //   );
+            // }
+            // user.activePlans[unlimitedPlanIndex].endDate = endDate;
+            // user.config = newConfig;
+            // user.markModified("activePlans");
+            // await user.save();
           } else {
-            await UserModel.findByIdAndUpdate(userId, {
-              $push: {
-                activePlans: {
-                  ...plan,
-                  startDate: null,
-                  endDate: null,
-                  status: "active",
-                },
-              },
-              $set: { config: plan.features },
-            });
+            if (plan.durationInDays) {
+              endDate = addDays(startDate, plan.durationInDays);
+            }
+
+            if (newConfig.modelCredit) {
+              newConfig.modelCredit += user.config.modelCredit || 0;
+            }
+            if (newConfig.imageCredit) {
+              newConfig.imageCredit += user.config.imageCredit || 0;
+            }
+            if (newConfig.videoCredit) {
+              newConfig.videoCredit += user.config.videoCredit || 0;
+            }
+            if (newConfig.aiImageCredit) {
+              newConfig.aiImageCredit += user.config.aiImageCredit || 0;
+            }
+
+            const previousPlans = user.activePlans.filter(
+              (p) => p.planId === "FREE_PLAN"
+            );
+
+            const activePlans = [
+              ...previousPlans,
+              { ...plan.toObject(), status: "active", startDate, endDate },
+            ];
+
+            user.activePlans = activePlans;
+            user.config = newConfig;
+            await user.save();
           }
         } else {
-          const config = payload.notes;
-          const key = config.planType;
-          const count = +config.planCount;
+          const plan = await TopUpModel.findOne({ planId });
+          // const key = config.planType;
+          // const count = +config.planCount;
 
           await TransactionModel.findOneAndUpdate(
             { orderId },
@@ -99,11 +124,38 @@ export const razorpayWebhook = async (req, res) => {
             { new: true }
           );
 
-          console.log("🚀 - razorpayWebhook - count:", { userId, key, count });
-          await UserModel.updateOne(
-            { _id: userId },
-            { $inc: { [`config.${key}`]: count } }
-          );
+          const type = plan.type;
+          const count = plan?.features?.[type] || 0;
+          const isLimitedPlan = plan.type === "storageLimit";
+
+          if (isLimitedPlan) {
+            let startDate = new Date();
+            let endDate = null;
+
+            if (plan.durationInDays) {
+              endDate = addDays(startDate, plan.durationInDays);
+            }
+
+            user.activeTopUps.push({
+              ...(plan.toObject?.() ?? plan),
+              status: "active",
+              startDate,
+              endDate,
+            });
+            user.markModified("activeTopUps");
+          }
+
+          if (count > 0) {
+            user.config[type] = (user.config[type] || 0) + count;
+            user.markModified("config");
+          }
+
+          console.log("🚀 - razorpayWebhook - user:", user);
+          await user.save();
+          // await UserModel.updateOne(
+          //   { _id: userId },
+          //   { $inc: { [`config.${type}`]: count } }
+          // );
         }
       }
 

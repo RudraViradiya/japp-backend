@@ -1,21 +1,73 @@
 import LogModel from "../model/logs.model.js";
 import PlanModel from "../model/plan.model.js";
 import UserModel from "../model/user.model.js";
+import MaterialModel from "../model/material.model.js";
+import ModelModel from "../model/model.model.js";
+import { uploadToR2, deleteFromR2 } from "../storage/cloudflare.js";
+import materialValidator from "../utils/validation/materialValidator.js";
+import validation from "../utils/validateRequest.js";
+import mongoose from "mongoose";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await UserModel.find(
-      {},
-      { password: 0, otp: 0, otpExpires: 0 }
-    );
+    const { search } = req.query;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const query = {};
+
+    if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+      const orConditions = [{ name: searchRegex }, { email: searchRegex }];
+
+      if (!isNaN(search)) {
+        orConditions.push({ phoneNo: Number(search) });
+      }
+
+      query.$or = orConditions;
+    }
+
+    const users = await UserModel.find(query, {
+      password: 0,
+      otp: 0,
+      otpExpires: 0,
+    })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalCount = await UserModel.countDocuments(query);
 
     return res.ok({
       status: 200,
       message: "Users fetched successfully.",
-      data: users,
+      data: {
+        data: users,
+        count: users.length,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+      },
     });
   } catch (error) {
     console.error("Error fetching users:", error);
+    return res.failureResponse();
+  }
+};
+
+export const getUsersList = async (req, res) => {
+  try {
+    const users = await UserModel.find({}, { name: 1 }).sort({ createdAt: -1 });
+
+    return res.ok({
+      status: 200,
+      message: "Users list fetched successfully.",
+      data: users,
+    });
+  } catch (error) {
+    console.error("Error fetching users list:", error);
     return res.failureResponse();
   }
 };
@@ -112,7 +164,7 @@ export const upgradePlan = async (req, res) => {
     let startDate = null;
     let endDate = null;
 
-    if (plan.durationInDays !== Number.MAX_SAFE_INTEGER) {
+    if (plan.durationInDays !== null) {
       startDate = new Date();
       endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + plan.durationInDays);
@@ -393,5 +445,352 @@ export const getUserActivatedLogs = async (req, res) => {
       message: "Failed to fetch USER_ACTIVATED logs",
       error: err.message,
     });
+  }
+};
+
+export const getAllMaterials = async (req, res) => {
+  try {
+    const { search, category } = req.query;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const pipeline = [];
+
+    if (category) {
+      pipeline.push({
+        $match: { category },
+      });
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      }
+    );
+
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { "user.name": { $regex: search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    pipeline.push(
+      { $sort: { createdAt: -1 } },
+      {
+        $addFields: {
+          user: "$user.name",
+        },
+      },
+      {
+        $project: {
+          userId: 0,
+          "user.password": 0,
+          "user.otp": 0,
+          "user.otpExpires": 0,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: skip }, { $limit: limit }],
+        },
+      }
+    );
+
+    const result = await MaterialModel.aggregate(pipeline);
+
+    const materials = result[0].data;
+    const totalCount = result[0].metadata[0]?.total || 0;
+
+    return res.ok({
+      status: 200,
+      data: {
+        data: materials,
+        count: materials.length,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+      },
+      message: "Materials fetched successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching materials:", error);
+    return res.failureResponse();
+  }
+};
+
+export const addMaterial = async (req, res) => {
+  const data = req.body;
+
+  const mainFile = req.files.file?.[0];
+  const thumbnail = req.files.thumbnail?.[0];
+
+  if (!mainFile || !thumbnail) {
+    return res.badRequest({
+      status: 400,
+      message: "Both file and thumbnail are required.",
+    });
+  }
+
+  if (data.userId) {
+    const user = await UserModel.findById(data.userId);
+    if (!user) {
+      return res.badRequest({
+        status: 404,
+        message: "User not found.",
+      });
+    }
+  }
+
+  delete data.thumbnail;
+  delete data.mainFile;
+
+  try {
+    // Validate request
+    const validateRequest = validation.validateParamsWithJoi(
+      data,
+      materialValidator.creationMaterial
+    );
+
+    if (!validateRequest.isValid) {
+      return res.badRequest({
+        status: 400,
+        message: `Invalid Params : ${validateRequest.message}`,
+      });
+    }
+
+    const modelId = new mongoose.Types.ObjectId();
+    const isCommonAsset = !data.userId; // If no userId provided, it's a common asset
+
+    // Determine paths
+    let mainPath, thumbPath;
+
+    if (isCommonAsset) {
+      mainPath = `assets/${data.category}/${mainFile.originalname}`;
+      thumbPath = `assets/thumbnails/${thumbnail.originalname}`;
+    } else {
+      mainPath = `${data.userId}/assets/${mainFile.originalname}`;
+      thumbPath = `${data.userId}/assets/thumbnail/${thumbnail.originalname}`;
+    }
+
+    // Upload to R2
+    const fileUrl = await uploadToR2(
+      mainFile.buffer,
+      mainPath,
+      mainFile.mimetype
+    );
+    const thumbnailUrl = await uploadToR2(
+      thumbnail.buffer,
+      thumbPath,
+      thumbnail.mimetype
+    );
+
+    const payload = validateRequest.value;
+    payload.type =
+      data.category === "metal_material" ? "metal_polished" : data.category; // Default type if metal
+    payload.userId = isCommonAsset ? null : data.userId;
+    payload.thumbnail = thumbnailUrl;
+    payload.value = fileUrl;
+    payload.weight = 50; // Default weight
+
+    const entry = new MaterialModel({ _id: modelId, ...payload });
+    await entry.save();
+
+    return res.ok({
+      status: 200,
+      data: entry,
+      message: "Material created Successfully",
+    });
+  } catch (error) {
+    console.log("🚀 - admin addMaterial - error:", error);
+    return res.failureResponse();
+  }
+};
+
+export const editMaterial = async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+
+  const thumbnail = req.files?.thumbnail?.[0];
+
+  try {
+    const material = await MaterialModel.findById(id);
+
+    if (!material) {
+      return res.badRequest({
+        status: 404,
+        message: "Material not found.",
+      });
+    }
+
+    const isCommonAsset = !data.userId && !material.userId;
+    const userId = data.userId || material.userId;
+
+    if (thumbnail) {
+      const thumbPath = isCommonAsset
+        ? `assets/thumbnails/${thumbnail.originalname}`
+        : `${userId}/assets/thumbnail/${thumbnail.originalname}`;
+
+      const thumbnailUrl = await uploadToR2(
+        thumbnail.buffer,
+        thumbPath,
+        thumbnail.mimetype
+      );
+      data.thumbnail = thumbnailUrl;
+    }
+
+    delete data.file;
+
+    const updatedMaterial = await MaterialModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true }
+    );
+
+    return res.ok({
+      status: 200,
+      data: updatedMaterial,
+      message: "Material updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating material:", error);
+    return res.failureResponse();
+  }
+};
+
+export const deleteMaterial = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const material = await MaterialModel.findByIdAndDelete(id);
+
+    if (!material) {
+      return res.badRequest({
+        status: 404,
+        message: "Material not found.",
+      });
+    }
+
+    if (material.value) {
+      await deleteFromR2(material.value);
+    }
+
+    if (material.thumbnail) {
+      await deleteFromR2(material.thumbnail);
+    }
+
+    return res.ok({
+      status: 200,
+      message: "Material deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting material:", error);
+    return res.failureResponse();
+  }
+};
+
+export const getAllModels = async (req, res) => {
+  try {
+    const { search, category } = req.query;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const pipeline = [];
+
+    if (category) {
+      pipeline.push({
+        $match: { type: category }, // Model uses 'type' instead of 'category' based on model.controller.js getAllByUser search logic
+      });
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      }
+    );
+
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { "user.name": { $regex: search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    pipeline.push(
+      { $sort: { createdAt: -1 } },
+      {
+        $addFields: {
+          user: "$user.name",
+        },
+      },
+      {
+        $project: {
+          userId: 0,
+          "user.password": 0,
+          "user.otp": 0,
+          "user.otpExpires": 0,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: skip }, { $limit: limit }],
+        },
+      }
+    );
+
+    const result = await ModelModel.aggregate(pipeline);
+
+    const models = result[0].data;
+    const totalCount = result[0].metadata[0]?.total || 0;
+
+    return res.ok({
+      status: 200,
+      data: {
+        data: models,
+        count: models.length,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        currentPage: page,
+      },
+      message: "Models fetched successfully",
+    });
+  } catch (error) {
+    console.error("Error fetching models:", error);
+    return res.failureResponse();
   }
 };

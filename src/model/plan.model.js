@@ -39,9 +39,11 @@ const featureSchema = new mongoose.Schema({
     default: "hd",
   },
 
-  imageCredit: { type: Number, default: 0 },
+  imageCredit: { type: Number, default: null },
 
-  videoCredit: { type: Number, default: 0 },
+  videoCredit: { type: Number, default: null },
+
+  storageLimit: { type: Number, default: null },
 
   maxVariant: { type: Number, default: 1 },
 
@@ -49,11 +51,11 @@ const featureSchema = new mongoose.Schema({
 
   embed: { type: Boolean, default: false },
 
-  aiImageGeneration: { type: Boolean, default: false },
-
   aiImageCredit: { type: Number, default: 0 },
 
   multiImageFromCAD: { type: Boolean, default: 0 },
+
+  multiVideoFromCAD: { type: Boolean, default: 0 },
 
   pdfCatalogue: { type: Boolean, default: false },
 
@@ -74,7 +76,7 @@ const schema = new Schema(
 
     type: {
       type: String,
-      enum: ["subscription", "credits", "order", "custom"],
+      enum: ["LIMITED", "UNLIMITED"],
       required: true,
     },
 

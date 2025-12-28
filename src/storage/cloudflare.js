@@ -45,6 +45,15 @@ export async function fetchFromR2(key) {
   return await s3.send(command);
 }
 
+export async function deleteFromR2(key) {
+  const command = new DeleteObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+  });
+
+  await s3.send(command);
+}
+
 export async function getSubFolders(prefix) {
   const normalizedPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
   let subFolders = [];

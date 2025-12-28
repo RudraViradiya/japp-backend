@@ -10,7 +10,7 @@ async function run() {
     //   {},
     //   {
     //     $set: {
-    //       userReferralCode: "",
+    //       activeTopUps: [],
     //     },
     //   }
     // );

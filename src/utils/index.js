@@ -15,3 +15,7 @@ export function flattenObject(obj, parentKey = "", res = {}) {
   }
   return res;
 }
+
+export function gbToBytes(gb) {
+  return gb * 1024 * 1024 * 1024;
+}
