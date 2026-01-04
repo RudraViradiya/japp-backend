@@ -295,7 +295,7 @@ export const getByIdEmbedLink = async (req, res) => {
       <body>
         Redirecting...
         <script>
-          window.location.href = "https://gemorastudio.com/embed/${id}";
+          window.location.href = "https://app.gemorastudio.com/embed/${id}";
         </script>
       </body>
     </html>
