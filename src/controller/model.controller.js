@@ -302,6 +302,7 @@ export const getByIdEmbedLink = async (req, res) => {
   `;
 
     res.setHeader("Content-Type", "text/html");
+    
     res.send(finalHtml);
   } catch (error) {
     // Handle invalid ObjectId format
