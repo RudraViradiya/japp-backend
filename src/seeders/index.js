@@ -45,9 +45,9 @@ async function run() {
 
     console.log("🚀 - Seeding Plans");
 
-    // console.log(`📊 - Total Plans to insert: ${subscription.length}`);
-    // await PlanModel.insertMany(subscription);
-    // console.log(`✅ - Successfully inserted ${subscription.length} Plans`);
+    console.log(`📊 - Total Plans to insert: ${subscription.length}`);
+    await PlanModel.insertMany(subscription);
+    console.log(`✅ - Successfully inserted ${subscription.length} Plans`);
 
     // console.log(`📊 - Total Top ups to insert: ${topup.length}`);
     // await TopUpModel.insertMany(topup);

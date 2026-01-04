@@ -12,16 +12,20 @@ const priceSchema = new mongoose.Schema({
   symbol: { type: String, required: true },
 
   amount: { type: Number, required: true },
+
+  originalAmount: { type: Number, required: true },
 });
 
 const featureSchema = new mongoose.Schema({
   modelCredit: { type: Number, default: 0 },
 
-  material: { type: Number, default: 0 },
+  material: { type: Number, default: 10 },
 
-  preset: { type: Number, default: 0 },
+  preset: { type: Number, default: 10 },
 
-  customAssets: { type: Number, default: 0 }, // updated from boolean
+  customAssets: { type: Number, default: 1 },
+
+  aiImageCredit: { type: Number, default: 1 },
 
   displayQuality: {
     type: String,
@@ -39,27 +43,13 @@ const featureSchema = new mongoose.Schema({
     default: "hd",
   },
 
-  imageCredit: { type: Number, default: null },
-
-  videoCredit: { type: Number, default: null },
-
   storageLimit: { type: Number, default: null },
 
   maxVariant: { type: Number, default: 1 },
 
-  customVideoAngle: { type: Boolean, default: false }, // video shoot
-
   embed: { type: Boolean, default: false },
 
   aiImageCredit: { type: Number, default: 0 },
-
-  multiImageFromCAD: { type: Boolean, default: 0 },
-
-  multiVideoFromCAD: { type: Boolean, default: 0 },
-
-  pdfCatalogue: { type: Boolean, default: false },
-
-  playground: { type: Boolean, default: false },
 });
 
 const schema = new Schema(
