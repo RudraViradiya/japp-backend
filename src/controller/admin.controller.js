@@ -108,7 +108,7 @@ export const updateUserById = async (req, res) => {
     const user = await UserModel.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { new: true, select: "-password -otp -otpExpires" }
+      { new: true, select: "-password -otp -otpExpires" },
     );
 
     if (!user) {
@@ -237,7 +237,7 @@ export const removeActivePlan = async (req, res) => {
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { $pull: { activePlans: { planId } } },
-      { new: true, select: "-password -otp -otpExpires" }
+      { new: true, select: "-password -otp -otpExpires" },
     );
 
     if (!updatedUser) {
@@ -262,16 +262,17 @@ export const getAllStatistics = async (req, res) => {
   try {
     const { start, end } = req.query;
 
-    // Default range: last 7 days
-    const endDate = end ? new Date(end) : new Date();
-    const startDate = start
-      ? new Date(start)
-      : new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    // Build dynamic match condition
     const match = {
-      createdAt: { $gte: startDate, $lte: endDate },
+      createdAt: {},
     };
+
+    if (start) {
+      match.createdAt.$gte = new Date(+start);
+    }
+    if (end) {
+      match.createdAt.$lte = new Date(+end);
+    }
+
     const result = await LogModel.aggregate([
       // 1️⃣ Remove unwanted log types
       {
@@ -341,16 +342,20 @@ export const getUserCreatedLogs = async (req, res) => {
   try {
     const { start, end } = req.query;
 
-    const endDate = end ? new Date(+end) : new Date();
-    const startDate = start
-      ? new Date(+start)
-      : new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const createdAt = {};
+
+    if (start) {
+      createdAt.$gte = new Date(+start);
+    }
+    if (end) {
+      createdAt.$lte = new Date(+end);
+    }
 
     const logs = await LogModel.aggregate([
       {
         $match: {
           type: "USER_CREATED",
-          createdAt: { $gte: startDate, $lte: endDate },
+          createdAt,
         },
       },
       {
@@ -400,9 +405,9 @@ export const getUserActivatedLogs = async (req, res) => {
   try {
     const { start, end } = req.query;
 
-    const endDate = end ? new Date(end) : new Date();
+    const endDate = end ? new Date(+end) : new Date();
     const startDate = start
-      ? new Date(start)
+      ? new Date(+start)
       : new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const logs = await LogModel.aggregate([
@@ -478,7 +483,7 @@ export const getAllMaterials = async (req, res) => {
           path: "$user",
           preserveNullAndEmptyArrays: true,
         },
-      }
+      },
     );
 
     if (search) {
@@ -512,7 +517,7 @@ export const getAllMaterials = async (req, res) => {
           metadata: [{ $count: "total" }],
           data: [{ $skip: skip }, { $limit: limit }],
         },
-      }
+      },
     );
 
     const result = await MaterialModel.aggregate(pipeline);
@@ -567,7 +572,7 @@ export const addMaterial = async (req, res) => {
     // Validate request
     const validateRequest = validation.validateParamsWithJoi(
       data,
-      materialValidator.creationMaterial
+      materialValidator.creationMaterial,
     );
 
     if (!validateRequest.isValid) {
@@ -595,12 +600,12 @@ export const addMaterial = async (req, res) => {
     const fileUrl = await uploadToR2(
       mainFile.buffer,
       mainPath,
-      mainFile.mimetype
+      mainFile.mimetype,
     );
     const thumbnailUrl = await uploadToR2(
       thumbnail.buffer,
       thumbPath,
-      thumbnail.mimetype
+      thumbnail.mimetype,
     );
 
     const payload = validateRequest.value;
@@ -652,7 +657,7 @@ export const editMaterial = async (req, res) => {
       const thumbnailUrl = await uploadToR2(
         thumbnail.buffer,
         thumbPath,
-        thumbnail.mimetype
+        thumbnail.mimetype,
       );
       data.thumbnail = thumbnailUrl;
     }
@@ -662,7 +667,7 @@ export const editMaterial = async (req, res) => {
     const updatedMaterial = await MaterialModel.findByIdAndUpdate(
       id,
       { $set: data },
-      { new: true }
+      { new: true },
     );
 
     return res.ok({
@@ -736,7 +741,7 @@ export const getAllModels = async (req, res) => {
           path: "$user",
           preserveNullAndEmptyArrays: true,
         },
-      }
+      },
     );
 
     if (search) {
@@ -770,7 +775,7 @@ export const getAllModels = async (req, res) => {
           metadata: [{ $count: "total" }],
           data: [{ $skip: skip }, { $limit: limit }],
         },
-      }
+      },
     );
 
     const result = await ModelModel.aggregate(pipeline);
