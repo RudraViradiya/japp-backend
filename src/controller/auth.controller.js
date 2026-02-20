@@ -15,7 +15,7 @@ export const signUp = async (req, res) => {
   try {
     const validateRequest = validation.validateParamsWithJoi(
       data,
-      authValidator.creationUser
+      authValidator.creationUser,
     );
 
     if (!validateRequest.isValid) {
@@ -182,7 +182,7 @@ export const resendOtp = async (req, res) => {
     await UserModel.findOneAndUpdate(
       { email },
       { otp, otpExpires },
-      { new: true }
+      { new: true },
     );
 
     // Send OTP email
@@ -222,7 +222,7 @@ export const sendResetPasswordOtp = async (req, res) => {
     await UserModel.findOneAndUpdate(
       { email },
       { otp, otpExpires },
-      { new: true }
+      { new: true },
     );
 
     // Send OTP email
@@ -293,7 +293,7 @@ export const login = async (req, res) => {
 export const getUserDetails = async (req, res) => {
   try {
     let user = await UserModel.findById(req.userId).select(
-      "-password -otp -otpExpires"
+      "-password -otp -otpExpires",
     );
 
     if (!user) {
@@ -307,7 +307,7 @@ export const getUserDetails = async (req, res) => {
     }
 
     const activePlanIndex = user.activePlans.findIndex(
-      (i) => i.name === "Free Trail"
+      (i) => i.name === "Free Trail",
     );
 
     if (activePlanIndex !== -1) {
@@ -327,7 +327,7 @@ export const getUserDetails = async (req, res) => {
         user = await UserModel.findOneAndUpdate(
           { _id: user._id },
           { $set: updateData },
-          { new: true }
+          { new: true },
         );
       }
     }
@@ -345,7 +345,7 @@ export const getUserDetails = async (req, res) => {
         },
         $inc: { [`data.${todayKey}`]: 1 }, // dynamic key increment
       },
-      { upsert: true }
+      { upsert: true },
     );
 
     const folderSize = await getFolderSize(user._id.toString());

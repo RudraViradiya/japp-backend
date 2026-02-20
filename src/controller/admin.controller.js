@@ -3,7 +3,11 @@ import PlanModel from "../model/plan.model.js";
 import UserModel from "../model/user.model.js";
 import MaterialModel from "../model/material.model.js";
 import ModelModel from "../model/model.model.js";
-import { uploadToR2, deleteFromR2 } from "../storage/cloudflare.js";
+import {
+  uploadToR2,
+  deleteFromR2,
+  getFolderSize,
+} from "../storage/cloudflare.js";
 import materialValidator from "../utils/validation/materialValidator.js";
 import validation from "../utils/validateRequest.js";
 import mongoose from "mongoose";
@@ -29,16 +33,42 @@ export const getAllUsers = async (req, res) => {
       query.$or = orConditions;
     }
 
-    const users = await UserModel.find(query, {
-      password: 0,
-      otp: 0,
-      otpExpires: 0,
-    })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    const pipeline = [
+      ...(Object.keys(query).length ? [{ $match: query }] : []),
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: "models",
+          localField: "_id",
+          foreignField: "userId",
+          as: "userModels",
+        },
+      },
+      {
+        $addFields: {
+          modelCount: { $size: "$userModels" },
+        },
+      },
+      {
+        $project: {
+          password: 0,
+          otp: 0,
+          otpExpires: 0,
+          userModels: 0,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: skip }, { $limit: limit }],
+        },
+      },
+    ];
 
-    const totalCount = await UserModel.countDocuments(query);
+    const result = await UserModel.aggregate(pipeline);
+
+    const users = result[0].data;
+    const totalCount = result[0].metadata[0]?.total || 0;
 
     return res.ok({
       status: 200,
@@ -89,10 +119,14 @@ export const getUserById = async (req, res) => {
       });
     }
 
+    const folderSize = await getFolderSize(id);
+    const userObj = user.toObject();
+    userObj.storageUsed = folderSize;
+
     return res.ok({
       status: 200,
       message: "User fetched successfully.",
-      data: user,
+      data: userObj,
     });
   } catch (error) {
     console.error("Error fetching user by ID:", error);
